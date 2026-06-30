@@ -1,0 +1,86 @@
+{
+  "platform": "windows-aarch64",
+  "display_name": "Windows ARM64",
+  "tools": [
+    {
+      "tool": "pip",
+      "priority": 1
+    },
+    {
+      "tool": "npm",
+      "priority": 2
+    },
+    {
+      "tool": "yarn",
+      "priority": 3
+    },
+    {
+      "tool": "pnpm",
+      "priority": 4
+    },
+    {
+      "tool": "cargo",
+      "priority": 5
+    },
+    {
+      "tool": "go",
+      "priority": 6
+    },
+    {
+      "tool": "docker",
+      "priority": 7
+    },
+    {
+      "tool": "choco",
+      "priority": 8
+    },
+    {
+      "tool": "nuget",
+      "priority": 9
+    },
+    {
+      "tool": "maven",
+      "priority": 10
+    },
+    {
+      "tool": "gradle",
+      "priority": 11
+    },
+    {
+      "tool": "rubygems",
+      "priority": 12
+    },
+    {
+      "tool": "pub",
+      "priority": 13
+    },
+    {
+      "tool": "huggingface",
+      "priority": 14
+    },
+    {
+      "tool": "nodejs",
+      "priority": 15
+    },
+    {
+      "tool": "python",
+      "priority": 16
+    },
+    {
+      "tool": "rustup",
+      "priority": 17
+    },
+    {
+      "tool": "vscode",
+      "priority": 18
+    },
+    {
+      "tool": "android-maven",
+      "priority": 19
+    },
+    {
+      "tool": "android-gradle",
+      "priority": 20
+    }
+  ]
+}

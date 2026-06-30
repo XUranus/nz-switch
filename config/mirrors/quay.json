@@ -1,0 +1,29 @@
+{
+  "tool": "quay",
+  "display_name": "Quay",
+  "description": "Red Hat Quay 镜像",
+  "config_type": "manual",
+  "os": [
+    "linux",
+    "macos"
+  ],
+  "arch": [],
+  "mirrors": [
+    {
+      "name": "daocloud",
+      "display_name": "DaoCloud",
+      "url": "https://quay.m.daocloud.io",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "official",
+      "display_name": "官方",
+      "url": "https://quay.io",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    }
+  ]
+}

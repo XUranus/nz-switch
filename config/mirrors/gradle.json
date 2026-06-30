@@ -1,0 +1,43 @@
+{
+  "tool": "gradle",
+  "display_name": "Gradle",
+  "description": "Java 构建工具",
+  "config_type": "file",
+  "config_path": "~/.gradle/init.gradle",
+  "os": [],
+  "arch": [],
+  "mirrors": [
+    {
+      "name": "tencent",
+      "display_name": "腾讯云",
+      "url": "https://mirrors.cloud.tencent.com/gradle/",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "aliyun",
+      "display_name": "阿里云",
+      "url": "https://mirrors.aliyun.com/macports/distfiles/gradle/",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "tuna",
+      "display_name": "清华 TUNA",
+      "url": "https://mirrors.tuna.tsinghua.edu.cn/gradle/",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "official",
+      "display_name": "官方",
+      "url": "https://plugins.gradle.org/m2/",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "platform": "macos-x86_64",
+  "display_name": "macOS Intel",
+  "tools": [
+    {
+      "tool": "pip",
+      "priority": 1
+    },
+    {
+      "tool": "npm",
+      "priority": 2
+    },
+    {
+      "tool": "yarn",
+      "priority": 3
+    },
+    {
+      "tool": "pnpm",
+      "priority": 4
+    },
+    {
+      "tool": "bun",
+      "priority": 5
+    },
+    {
+      "tool": "deno",
+      "priority": 6
+    },
+    {
+      "tool": "cargo",
+      "priority": 7
+    },
+    {
+      "tool": "go",
+      "priority": 8
+    },
+    {
+      "tool": "docker",
+      "priority": 9
+    },
+    {
+      "tool": "conda",
+      "priority": 10
+    },
+    {
+      "tool": "brew",
+      "priority": 11
+    },
+    {
+      "tool": "cocoapods",
+      "priority": 12
+    },
+    {
+      "tool": "maven",
+      "priority": 13
+    },
+    {
+      "tool": "gradle",
+      "priority": 14
+    },
+    {
+      "tool": "rubygems",
+      "priority": 15
+    },
+    {
+      "tool": "pub",
+      "priority": 16
+    },
+    {
+      "tool": "huggingface",
+      "priority": 17
+    },
+    {
+      "tool": "nodejs",
+      "priority": 18
+    },
+    {
+      "tool": "python",
+      "priority": 19
+    },
+    {
+      "tool": "rustup",
+      "priority": 20
+    },
+    {
+      "tool": "vscode",
+      "priority": 21
+    },
+    {
+      "tool": "swift",
+      "priority": 22
+    },
+    {
+      "tool": "k8s-gcr",
+      "priority": 23
+    },
+    {
+      "tool": "k8s-registry",
+      "priority": 24
+    },
+    {
+      "tool": "ghcr",
+      "priority": 25
+    },
+    {
+      "tool": "quay",
+      "priority": 26
+    }
+  ]
+}

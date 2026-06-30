@@ -1,0 +1,43 @@
+{
+  "tool": "cargo",
+  "display_name": "Cargo",
+  "description": "Rust 包管理器",
+  "config_type": "file",
+  "config_path": "~/.cargo/config.toml",
+  "os": [],
+  "arch": [],
+  "mirrors": [
+    {
+      "name": "ustc",
+      "display_name": "中科大",
+      "url": "https://mirrors.ustc.edu.cn/crates.io-index",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "tuna",
+      "display_name": "清华 TUNA",
+      "url": "https://mirrors.tuna.tsinghua.edu.cn/git/crates.io-index.git",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "rsproxy",
+      "display_name": "rsproxy",
+      "url": "https://rsproxy.cn/index",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "official",
+      "display_name": "官方",
+      "url": "https://crates.io",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    }
+  ]
+}

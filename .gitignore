@@ -1,0 +1,13 @@
+# Rust
+/target
+
+# Node
+gui/node_modules/
+gui/dist/
+
+# macOS
+.DS_Store
+
+# Misc
+*.bak
+.nz-switch.toml

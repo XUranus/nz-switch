@@ -1,0 +1,43 @@
+{
+  "tool": "npm",
+  "display_name": "npm",
+  "description": "Node.js 包管理器",
+  "config_type": "file",
+  "config_path": "~/.npmrc",
+  "os": [],
+  "arch": [],
+  "mirrors": [
+    {
+      "name": "npmmirror",
+      "display_name": "npmmirror",
+      "url": "https://registry.npmmirror.com",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "tencent",
+      "display_name": "腾讯云",
+      "url": "https://mirrors.cloud.tencent.com/npm",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "huawei",
+      "display_name": "华为云",
+      "url": "https://repo.huaweicloud.com/repository/npm",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "official",
+      "display_name": "官方",
+      "url": "https://registry.npmjs.org/",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    }
+  ]
+}

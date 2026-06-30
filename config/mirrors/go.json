@@ -1,0 +1,34 @@
+{
+  "tool": "go",
+  "display_name": "Go",
+  "description": "Go 模块代理",
+  "config_type": "env",
+  "os": [],
+  "arch": [],
+  "mirrors": [
+    {
+      "name": "goproxy.cn",
+      "display_name": "goproxy.cn",
+      "url": "https://goproxy.cn,direct",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "goproxy.io",
+      "display_name": "goproxy.io",
+      "url": "https://goproxy.io,direct",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "official",
+      "display_name": "官方",
+      "url": "https://proxy.golang.org,direct",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    }
+  ]
+}

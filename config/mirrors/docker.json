@@ -1,0 +1,78 @@
+{
+  "tool": "docker",
+  "display_name": "Docker",
+  "description": "容器镜像仓库",
+  "config_type": "file",
+  "config_path": "/etc/docker/daemon.json",
+  "os": [
+    "linux",
+    "macos"
+  ],
+  "arch": [],
+  "mirrors": [
+    {
+      "name": "aliyun-hangzhou",
+      "display_name": "阿里云杭州",
+      "url": "https://registry.cn-hangzhou.aliyuncs.com",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "aliyun-shanghai",
+      "display_name": "阿里云上海",
+      "url": "https://registry.cn-shanghai.aliyuncs.com",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "daocloud",
+      "display_name": "DaoCloud",
+      "url": "https://docker.m.daocloud.io",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "1ms.run",
+      "display_name": "1ms.run",
+      "url": "https://docker.1ms.run",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "1panel",
+      "display_name": "1Panel",
+      "url": "https://docker.1panel.live",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "xuanyuan",
+      "display_name": "轩辕",
+      "url": "https://docker.xuanyuan.me",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "huawei",
+      "display_name": "华为云",
+      "url": "https://repo.huaweicloud.com",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "official",
+      "display_name": "官方",
+      "url": "https://registry-1.docker.io",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    }
+  ]
+}

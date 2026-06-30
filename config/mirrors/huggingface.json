@@ -1,0 +1,34 @@
+{
+  "tool": "huggingface",
+  "display_name": "Hugging Face",
+  "description": "AI 模型仓库",
+  "config_type": "env",
+  "os": [],
+  "arch": [],
+  "mirrors": [
+    {
+      "name": "hf-mirror",
+      "display_name": "HF Mirror",
+      "url": "https://hf-mirror.com",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "modelscope",
+      "display_name": "ModelScope",
+      "url": "https://modelscope.cn",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "official",
+      "display_name": "官方",
+      "url": "https://huggingface.co",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    }
+  ]
+}

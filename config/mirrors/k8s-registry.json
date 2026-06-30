@@ -1,0 +1,37 @@
+{
+  "tool": "k8s-registry",
+  "display_name": "K8s Registry",
+  "description": "registry.k8s.io 镜像",
+  "config_type": "manual",
+  "os": [
+    "linux",
+    "macos"
+  ],
+  "arch": [],
+  "mirrors": [
+    {
+      "name": "aliyun",
+      "display_name": "阿里云",
+      "url": "https://registry.cn-hangzhou.aliyuncs.com/google_containers",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "daocloud",
+      "display_name": "DaoCloud",
+      "url": "https://k8s-gcr.m.daocloud.io",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "official",
+      "display_name": "官方",
+      "url": "https://registry.k8s.io",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    }
+  ]
+}

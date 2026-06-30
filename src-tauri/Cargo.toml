@@ -1,0 +1,25 @@
+[package]
+name = "app"
+version = "0.1.0"
+description = "nz-switch — 一键切换中国内地开发环境"
+authors = ["XUranus"]
+license = "MIT"
+repository = "https://github.com/XUranus/nz-switch"
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.6.0", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "2.11.0", features = [] }
+tauri-plugin-log = "2"
+nz-switch = { path = ".." }
+toml = "0.8"
+reqwest = { version = "0.12", features = ["json"] }

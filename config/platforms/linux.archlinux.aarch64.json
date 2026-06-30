@@ -1,0 +1,97 @@
+{
+  "platform": "linux-archlinux-aarch64",
+  "display_name": "Arch Linux ARM64",
+  "distro": "archlinux",
+  "os": "linux",
+  "arch": "aarch64",
+  "tools": [
+    {
+      "tool": "pip",
+      "priority": 1
+    },
+    {
+      "tool": "npm",
+      "priority": 2
+    },
+    {
+      "tool": "yarn",
+      "priority": 3
+    },
+    {
+      "tool": "pnpm",
+      "priority": 4
+    },
+    {
+      "tool": "cargo",
+      "priority": 5
+    },
+    {
+      "tool": "go",
+      "priority": 6
+    },
+    {
+      "tool": "docker",
+      "priority": 7
+    },
+    {
+      "tool": "conda",
+      "priority": 8
+    },
+    {
+      "tool": "maven",
+      "priority": 10
+    },
+    {
+      "tool": "gradle",
+      "priority": 11
+    },
+    {
+      "tool": "rubygems",
+      "priority": 12
+    },
+    {
+      "tool": "composer",
+      "priority": 13
+    },
+    {
+      "tool": "pub",
+      "priority": 14
+    },
+    {
+      "tool": "huggingface",
+      "priority": 15
+    },
+    {
+      "tool": "nodejs",
+      "priority": 16
+    },
+    {
+      "tool": "python",
+      "priority": 17
+    },
+    {
+      "tool": "rustup",
+      "priority": 18
+    },
+    {
+      "tool": "vscode",
+      "priority": 19
+    },
+    {
+      "tool": "k8s-gcr",
+      "priority": 20
+    },
+    {
+      "tool": "k8s-registry",
+      "priority": 21
+    },
+    {
+      "tool": "ghcr",
+      "priority": 22
+    },
+    {
+      "tool": "quay",
+      "priority": 23
+    }
+  ]
+}

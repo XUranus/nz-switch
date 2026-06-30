@@ -1,0 +1,28 @@
+{
+  "tool": "swift",
+  "display_name": "Swift",
+  "description": "Swift Package Manager",
+  "config_type": "manual",
+  "os": [
+    "macos"
+  ],
+  "arch": [],
+  "mirrors": [
+    {
+      "name": "tuna",
+      "display_name": "清华 TUNA",
+      "url": "https://mirrors.tuna.tsinghua.edu.cn/git/SwiftPackageIndex",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    },
+    {
+      "name": "official",
+      "display_name": "官方",
+      "url": "https://swift.org/",
+      "os": [],
+      "arch": [],
+      "enabled": true
+    }
+  ]
+}
