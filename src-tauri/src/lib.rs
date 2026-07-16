@@ -442,16 +442,8 @@ async fn get_ip_location() -> Result<IpLocation, String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // AppImage 内运行时，设置环境变量避免 GPU 驱动冲突
-    // 打包的 libwayland/libEGL/libGL 与宿主机驱动版本不匹配会导致 EGL_BAD_ALLOC
-    if std::env::var("APPIMAGE").is_ok() {
-        // 回退到 X11，避免 Wayland EGL surface 创建失败
-        std::env::set_var("GDK_BACKEND", "x11");
-        // 禁用 WebKit DMA-BUF 渲染器，避免 EGL 分配失败
-        std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
-        // 禁用 WebKit 合成模式，避免 GPU 加速问题
-        std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
-    }
+    // 注：CI 已剥离 AppImage 中冲突的 GPU 库 (libwayland/libEGL/libGL)，
+    // 运行时使用宿主机原生 GPU 驱动，无需禁用 GPU 加速。
 
     tauri::Builder::default()
         .plugin(tauri_plugin_log::Builder::default().build())
