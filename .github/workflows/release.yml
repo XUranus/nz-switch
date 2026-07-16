@@ -101,9 +101,9 @@ jobs:
       - name: Strip GPU libs from AppImage (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
-          # 下载 appimagetool
-          curl -fsSL -o appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-          chmod +x appimagetool
+          # 下载 appimagetool 到固定路径
+          curl -fsSL -o /tmp/appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x /tmp/appimagetool
 
           cd src-tauri/target/${{ matrix.target }}/release/bundle/appimage
           APPIMAGE=$(ls *.AppImage | head -1)
@@ -112,7 +112,7 @@ jobs:
           find squashfs-root -name "libwayland-*.so*" -delete
           find squashfs-root -name "libEGL.so*" -delete
           find squashfs-root -name "libGL.so*" -delete
-          ../../../appimagetool squashfs-root "$APPIMAGE"
+          /tmp/appimagetool squashfs-root "$APPIMAGE"
           rm -rf squashfs-root
         env:
           ARCH: x86_64
