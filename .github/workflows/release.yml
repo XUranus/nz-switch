@@ -102,7 +102,7 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           # 下载 appimagetool
-          curl -fsSL -o appimagetool https://github.com/AppImage/type2-runtime/releases/download/continuous/appimagetool-x86_64.AppImage
+          curl -fsSL -o appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
           chmod +x appimagetool
 
           cd src-tauri/target/${{ matrix.target }}/release/bundle/appimage
