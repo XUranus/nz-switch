@@ -153,7 +153,7 @@ function App() {
           </div>
         ) : (
           <>
-            {tab === "dashboard" && <Dashboard status={status} onRefresh={loadStatus} />}
+            {tab === "dashboard" && <Dashboard status={status} />}
             {tab === "mirrors" && <MirrorPanel onMirrorChange={loadStatus} />}
             {tab === "doctor" && <DoctorPanel />}
             {tab === "settings" && <SettingsPanel />}

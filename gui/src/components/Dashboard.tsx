@@ -5,7 +5,6 @@ import { detectMirrors, getInstalledTools, listMirrors, getIpLocation } from "..
 
 interface Props {
   status: StatusInfo | null;
-  onRefresh: () => void;
 }
 
 const TABS = [
@@ -18,7 +17,7 @@ const TABS = [
 
 type TabKey = (typeof TABS)[number]["key"];
 
-export default function Dashboard({ status, onRefresh }: Props) {
+export default function Dashboard({ status }: Props) {
   const [activeTab, setActiveTab] = useState<TabKey>("mirrors");
   const [detectedMirrors, setDetectedMirrors] = useState<Record<string, string>>({});
   const [installedTools, setInstalledTools] = useState<Set<string>>(new Set());
@@ -80,14 +79,6 @@ export default function Dashboard({ status, onRefresh }: Props) {
 
   return (
     <div>
-      <div className="page-header">
-        <h2 className="page-title">状态总览</h2>
-        <button className="glass-btn" onClick={() => { onRefresh(); loadExtras(); }}>
-          <IconRefresh size={14} />
-          刷新
-        </button>
-      </div>
-
       {/* Profile Card */}
       <div className="glass-card dashboard-profile-card">
         <div className="dashboard-profile-left">
