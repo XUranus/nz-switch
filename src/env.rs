@@ -8,6 +8,7 @@ use tracing::info;
 // ─── Shell 辅助函数 ──────────────────────────────────────────────────
 
 /// 检测当前 shell 类型
+#[cfg(not(target_os = "windows"))]
 fn detect_shell() -> Option<String> {
     std::env::var("SHELL").ok().and_then(|s| {
         std::path::Path::new(&s)

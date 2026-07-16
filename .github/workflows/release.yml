@@ -72,6 +72,8 @@ jobs:
       - name: Install frontend dependencies
         run: pnpm install --frozen-lockfile
         working-directory: gui
+        env:
+          PNPM_ONLY_BUILT_DEPS: esbuild
 
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0

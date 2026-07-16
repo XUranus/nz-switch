@@ -69,6 +69,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
         working-directory: gui
+        env:
+          PNPM_ONLY_BUILT_DEPS: esbuild
 
       - name: TypeScript type check
         run: pnpm typecheck
