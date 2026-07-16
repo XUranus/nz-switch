@@ -51,6 +51,11 @@ pub fn switch_profile(profile_name: &str) -> anyhow::Result<SwitchResult> {
         errors.push(format!("清除环境变量: {e}"));
     }
 
+    // 重新加载配置，确保包含 reset_all_mirrors 清理后的状态
+    // （reset_all_mirrors 通过 mutate_current_profile 清除了磁盘上的镜像记录，
+    //  但内存中的 cfg 仍持有旧 profile 的镜像数据，必须刷新后再保存）
+    cfg = config::AppConfig::load()?;
+
     // 应用合并后的 profile 配置
     if let Err(e) = env::apply_env_vars(&effective_profile.env) {
         errors.push(format!("环境变量: {e}"));

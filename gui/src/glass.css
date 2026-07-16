@@ -133,6 +133,7 @@ body {
 
 .app {
   display: flex;
+  flex-direction: column;
   height: 100vh;
   background:
     radial-gradient(ellipse 80% 60% at 20% 30%, rgba(90, 200, 250, 0.04) 0%, transparent 60%),
@@ -140,12 +141,81 @@ body {
     var(--bg-deep);
 }
 
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ─── Custom Titlebar ─────────────────────────────────────────── */
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 8px 0 14px;
+  background: var(--glass-fill);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-bottom: 1px solid var(--glass-border);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.titlebar-drag {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  height: 100%;
+}
+
+.titlebar-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+  pointer-events: none;
+}
+
+.titlebar-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.titlebar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.titlebar-btn:hover {
+  background: var(--glass-fill-hover);
+  color: var(--text-primary);
+}
+
+.titlebar-btn-close:hover {
+  background: rgba(239, 68, 68, 0.8);
+  color: #fff;
+}
+
 /* ─── Glass Sidebar ────────────────────────────────────────────── */
 
 .sidebar {
   width: 240px;
   min-width: 240px;
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   padding: 24px 12px;

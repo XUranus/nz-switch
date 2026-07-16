@@ -162,6 +162,34 @@ export const IconChina: React.FC<{ size?: number }> = ({ size = 20 }) => (
 
 export const IconGit: React.FC<{ size?: number }> = ({ size }) => <ToolIcon size={size} src="/icons/git.svg" alt="git" />;
 
+// ─── 窗口控制图标 ─────────────────────────────────────────────────
+
+export const IconMinimize: React.FC<{ size?: number }> = ({ size = 12 }) => (
+  <svg width={size} height={size} viewBox="0 0 12 12" fill="none" style={iconBaseStyle} aria-hidden="true">
+    <line x1="2" y1="6" x2="10" y2="6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+  </svg>
+);
+
+export const IconMaximize: React.FC<{ size?: number }> = ({ size = 12 }) => (
+  <svg width={size} height={size} viewBox="0 0 12 12" fill="none" style={iconBaseStyle} aria-hidden="true">
+    <rect x="2" y="2" width="8" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.2"/>
+  </svg>
+);
+
+export const IconRestore: React.FC<{ size?: number }> = ({ size = 12 }) => (
+  <svg width={size} height={size} viewBox="0 0 12 12" fill="none" style={iconBaseStyle} aria-hidden="true">
+    <rect x="3.5" y="1" width="6.5" height="6.5" rx="1" stroke="currentColor" strokeWidth="1"/>
+    <rect x="1.5" y="4" width="6.5" height="6.5" rx="1" stroke="currentColor" strokeWidth="1" fill="var(--bg-deep, #080810)"/>
+  </svg>
+);
+
+export const IconClose: React.FC<{ size?: number }> = ({ size = 12 }) => (
+  <svg width={size} height={size} viewBox="0 0 12 12" fill="none" style={iconBaseStyle} aria-hidden="true">
+    <line x1="2.5" y1="2.5" x2="9.5" y2="9.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="9.5" y1="2.5" x2="2.5" y2="9.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+  </svg>
+);
+
 // ─── 工具图标映射 ─────────────────────────────────────────────────
 
 export const toolIcons: Record<string, React.FC<{ size?: number }>> = {

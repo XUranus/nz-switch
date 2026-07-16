@@ -12,12 +12,12 @@ struct OpMutex(Arc<Mutex<()>>);
 /// 获取当前状态
 #[tauri::command]
 fn get_status() -> Result<StatusInfo, String> {
-    let cfg = nz-switch::config::AppConfig::load().map_err(|e| e.to_string())?;
-    let profile = nz-switch::profile::resolve_profile(&cfg.current_profile).map_err(|e| e.to_string())?;
+    let cfg = nz_switch::config::AppConfig::load().map_err(|e| e.to_string())?;
+    let profile = nz_switch::profile::resolve_profile(&cfg.current_profile).map_err(|e| e.to_string())?;
 
-    let local = nz-switch::local_config::load_local_config().map_err(|e| e.to_string())?;
+    let local = nz_switch::local_config::load_local_config().map_err(|e| e.to_string())?;
     let effective = match &local {
-        Some(lc) => nz-switch::local_config::merge_with_local(&profile, lc, &cfg).map_err(|e| e.to_string())?,
+        Some(lc) => nz_switch::local_config::merge_with_local(&profile, lc, &cfg).map_err(|e| e.to_string())?,
         None => profile.clone(),
     };
 
@@ -38,8 +38,8 @@ fn get_status() -> Result<StatusInfo, String> {
 fn switch_profile(state: tauri::State<'_, OpMutex>, name: String) -> Result<String, String> {
     let _guard = state.0.lock().map_err(|e| e.to_string())?;
     // guard 在函数返回时 drop，释放锁
-    let profile = nz-switch::profile::resolve_profile(&name).map_err(|e| e.to_string())?;
-    let result = nz-switch::switch_profile(&name).map_err(|e| e.to_string())?;
+    let profile = nz_switch::profile::resolve_profile(&name).map_err(|e| e.to_string())?;
+    let result = nz_switch::switch_profile(&name).map_err(|e| e.to_string())?;
 
     let mut msg = format!("已切换到 {} 环境", profile.display_name);
     if !result.errors.is_empty() {
@@ -54,7 +54,7 @@ fn switch_profile(state: tauri::State<'_, OpMutex>, name: String) -> Result<Stri
 /// 获取配置
 #[tauri::command]
 fn get_config() -> Result<ConfigInfo, String> {
-    let cfg = nz-switch::config::AppConfig::load().map_err(|e| e.to_string())?;
+    let cfg = nz_switch::config::AppConfig::load().map_err(|e| e.to_string())?;
 
     let mut profiles = HashMap::new();
     for (name, profile) in &cfg.profiles {
@@ -71,7 +71,7 @@ fn get_config() -> Result<ConfigInfo, String> {
     Ok(ConfigInfo {
         current_profile: cfg.current_profile.clone(),
         profiles,
-        config_path: nz-switch::config::config_path()
+        config_path: nz_switch::config::config_path()
             .map(|p| p.to_string_lossy().to_string())
             .unwrap_or_default(),
     })
@@ -80,8 +80,8 @@ fn get_config() -> Result<ConfigInfo, String> {
 /// 列出镜像源（按平台过滤）
 #[tauri::command]
 fn list_mirrors(tool: Option<String>) -> Result<Vec<MirrorGroup>, String> {
-    let defs = nz-switch::mirror::config::load_mirror_defs();
-    let platforms = nz-switch::mirror::config::load_platform_mirrors();
+    let defs = nz_switch::mirror::config::load_mirror_defs();
+    let platforms = nz_switch::mirror::config::load_platform_mirrors();
 
     let mut groups = Vec::new();
     for (tool_name, mirrors) in &platforms {
@@ -123,27 +123,27 @@ fn list_mirrors(tool: Option<String>) -> Result<Vec<MirrorGroup>, String> {
 /// 获取平台信息
 #[tauri::command]
 fn get_platform_info() -> PlatformInfo {
-    let (id, name) = nz-switch::platform_info();
+    let (id, name) = nz_switch::platform_info();
     PlatformInfo { id, name }
 }
 
 /// 获取已安装的工具列表
 #[tauri::command]
 fn get_installed_tools() -> Vec<String> {
-    nz-switch::mirror::config::installed_tools()
+    nz_switch::mirror::config::installed_tools()
 }
 
 /// 检测所有已安装工具的当前镜像源（读取系统实际配置文件/环境变量）
 #[tauri::command]
 fn detect_mirrors() -> HashMap<String, String> {
-    nz-switch::mirror::detect_all_mirrors()
+    nz_switch::mirror::detect_all_mirrors()
 }
 
 /// 设置镜像源
 #[tauri::command]
 fn set_mirror(state: tauri::State<'_, OpMutex>, tool: String, source: String) -> Result<String, String> {
     let _guard = state.0.lock().map_err(|e| e.to_string())?;
-    nz-switch::mirror::set_mirror(&tool, &source).map_err(|e| e.to_string())?;
+    nz_switch::mirror::set_mirror(&tool, &source).map_err(|e| e.to_string())?;
     Ok(format!("{tool} 镜像源已设置为: {source}"))
 }
 
@@ -151,14 +151,14 @@ fn set_mirror(state: tauri::State<'_, OpMutex>, tool: String, source: String) ->
 #[tauri::command]
 fn reset_mirror(state: tauri::State<'_, OpMutex>, tool: String) -> Result<String, String> {
     let _guard = state.0.lock().map_err(|e| e.to_string())?;
-    nz-switch::mirror::reset_mirror(&tool).map_err(|e| e.to_string())?;
+    nz_switch::mirror::reset_mirror(&tool).map_err(|e| e.to_string())?;
     Ok(format!("{tool} 镜像源已重置"))
 }
 
 /// 获取 DNS 预设
 #[tauri::command]
 fn get_dns_presets() -> Vec<DnsPreset> {
-    nz-switch::dns::DNS_PRESETS.iter()
+    nz_switch::dns::DNS_PRESETS.iter()
         .map(|(name, servers)| DnsPreset {
             name: name.to_string(),
             servers: servers.iter().map(|s| s.to_string()).collect(),
@@ -218,22 +218,22 @@ fn get_current_dns() -> Vec<String> {
 
 /// 运行诊断（复用库函数）
 #[tauri::command]
-fn run_doctor() -> Vec<nz-switch::doctor::DoctorCheck> {
-    let domestic = nz-switch::config::AppConfig::load()
+fn run_doctor() -> Vec<nz_switch::doctor::DoctorCheck> {
+    let domestic = nz_switch::config::AppConfig::load()
         .map(|cfg| {
             cfg.profiles.get(&cfg.current_profile)
-                .is_some_and(nz-switch::doctor::is_domestic_profile)
+                .is_some_and(nz_switch::doctor::is_domestic_profile)
         })
         .unwrap_or(false);
-    nz-switch::doctor::run_checks(domestic)
+    nz_switch::doctor::run_checks(domestic)
 }
 
 /// 重置配置
 #[tauri::command]
 fn reset_config(state: tauri::State<'_, OpMutex>) -> Result<String, String> {
     let _guard = state.0.lock().map_err(|e| e.to_string())?;
-    let config_path = nz-switch::config::config_path().map_err(|e| e.to_string())?;
-    let cfg = nz-switch::config::AppConfig::default();
+    let config_path = nz_switch::config::config_path().map_err(|e| e.to_string())?;
+    let cfg = nz_switch::config::AppConfig::default();
     cfg.save(&config_path).map_err(|e| e.to_string())?;
     Ok("配置已重置为默认值".to_string())
 }
@@ -241,18 +241,18 @@ fn reset_config(state: tauri::State<'_, OpMutex>) -> Result<String, String> {
 /// 获取原始配置 (TOML)
 #[tauri::command]
 fn get_raw_config() -> Result<RawConfigInfo, String> {
-    let config_path = nz-switch::config::config_path().map_err(|e| e.to_string())?;
+    let config_path = nz_switch::config::config_path().map_err(|e| e.to_string())?;
     let path_str = config_path.to_string_lossy().to_string();
 
     if !config_path.exists() {
-        let cfg = nz-switch::config::AppConfig::default();
+        let cfg = nz_switch::config::AppConfig::default();
         let toml = toml::to_string_pretty(&cfg).map_err(|e| e.to_string())?;
         return Ok(RawConfigInfo { toml, path: path_str });
     }
 
     let content = std::fs::read_to_string(&config_path).map_err(|e| e.to_string())?;
     // 验证 TOML 合法性
-    let _cfg: nz-switch::config::AppConfig = toml::from_str(&content)
+    let _cfg: nz_switch::config::AppConfig = toml::from_str(&content)
         .map_err(|e| format!("TOML 解析失败: {e}"))?;
     Ok(RawConfigInfo { toml: content, path: path_str })
 }
@@ -261,10 +261,10 @@ fn get_raw_config() -> Result<RawConfigInfo, String> {
 #[tauri::command]
 fn save_raw_config(state: tauri::State<'_, OpMutex>, toml: String) -> Result<String, String> {
     let _guard = state.0.lock().map_err(|e| e.to_string())?;
-    let cfg: nz-switch::config::AppConfig = toml::from_str(&toml)
+    let cfg: nz_switch::config::AppConfig = toml::from_str(&toml)
         .map_err(|e| format!("TOML 解析失败: {e}"))?;
 
-    let config_path = nz-switch::config::config_path().map_err(|e| e.to_string())?;
+    let config_path = nz_switch::config::config_path().map_err(|e| e.to_string())?;
     cfg.save(&config_path).map_err(|e| e.to_string())?;
 
     Ok("配置已保存".to_string())
@@ -272,31 +272,20 @@ fn save_raw_config(state: tauri::State<'_, OpMutex>, toml: String) -> Result<Str
 
 /// 并发测速镜像源（批量返回，保留兼容）
 #[tauri::command]
-fn test_mirrors(state: tauri::State<'_, OpMutex>, tool: Option<String>) -> Result<Vec<nz-switch::mirror::MirrorTestResult>, String> {
-    let _guard = state.0.lock().map_err(|e| e.to_string())?;
-    let results = nz-switch::mirror::test_mirrors_concurrent(tool.as_deref());
+fn test_mirrors(tool: Option<String>) -> Result<Vec<nz_switch::mirror::MirrorTestResult>, String> {
+    let results = nz_switch::mirror::test_mirrors_concurrent(tool.as_deref());
     Ok(results)
 }
 
 /// 流式测速：每完成一个镜像就通过事件通知前端
+/// 仅执行 TCP 延迟探测，不修改环境变量，无需持锁
 #[tauri::command]
-fn test_mirrors_streaming(state: tauri::State<'_, OpMutex>, app: tauri::AppHandle, tool: Option<String>) {
-    // 克隆 Arc 以便线程持有锁引用
-    let mutex = Arc::clone(&state.0);
+fn test_mirrors_streaming(app: tauri::AppHandle, tool: Option<String>) {
     std::thread::spawn(move || {
-        // 线程内获取锁，确保与 switch_profile 互斥
-        let _guard = match mutex.lock() {
-            Ok(g) => g,
-            Err(e) => {
-                let _ = app.emit("mirror-test-error", e.to_string());
-                return;
-            }
-        };
         let app_for_cb = app.clone();
-        nz-switch::mirror::test_mirrors_streaming(tool.as_deref(), move |result| {
+        nz_switch::mirror::test_mirrors_streaming(tool.as_deref(), move |result| {
             let _ = app_for_cb.emit("mirror-test-result", result);
         });
-        // 全部完成，guard 在此 drop，释放锁
         let _ = app.emit("mirror-test-done", ());
     });
 }
@@ -359,9 +348,9 @@ struct StatusInfo {
     display_name: String,
     env: HashMap<String, String>,
     mirrors: HashMap<String, String>,
-    proxy: Option<nz-switch::proxy::ProxyConfig>,
-    git: Option<nz-switch::git::GitConfig>,
-    dns: Option<nz-switch::dns::DnsConfig>,
+    proxy: Option<nz_switch::proxy::ProxyConfig>,
+    git: Option<nz_switch::git::GitConfig>,
+    dns: Option<nz_switch::dns::DnsConfig>,
     has_local_config: bool,
 }
 
@@ -379,9 +368,9 @@ struct ProfileInfo {
     display_name: String,
     env: HashMap<String, String>,
     mirrors: HashMap<String, String>,
-    proxy: Option<nz-switch::proxy::ProxyConfig>,
-    git: Option<nz-switch::git::GitConfig>,
-    dns: Option<nz-switch::dns::DnsConfig>,
+    proxy: Option<nz_switch::proxy::ProxyConfig>,
+    git: Option<nz_switch::git::GitConfig>,
+    dns: Option<nz_switch::dns::DnsConfig>,
 }
 
 /// 获取当前 IP 归属地（通过 ip-api.com）
@@ -415,6 +404,17 @@ async fn get_ip_location() -> Result<IpLocation, String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // AppImage 内运行时，设置环境变量避免 GPU 驱动冲突
+    // 打包的 libwayland/libEGL/libGL 与宿主机驱动版本不匹配会导致 EGL_BAD_ALLOC
+    if std::env::var("APPIMAGE").is_ok() {
+        // 回退到 X11，避免 Wayland EGL surface 创建失败
+        std::env::set_var("GDK_BACKEND", "x11");
+        // 禁用 WebKit DMA-BUF 渲染器，避免 EGL 分配失败
+        std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+        // 禁用 WebKit 合成模式，避免 GPU 加速问题
+        std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
+    }
+
     tauri::Builder::default()
         .plugin(tauri_plugin_log::Builder::default().build())
         .manage(OpMutex(Arc::new(Mutex::new(()))))

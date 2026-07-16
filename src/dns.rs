@@ -1,3 +1,5 @@
+use std::net::Ipv4Addr;
+
 use anyhow::Result;
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
@@ -21,12 +23,24 @@ const DOMESTIC_DNS_NAMES: &[&str] = &["alibaba", "ali", "114", "tencent", "dnspo
 /// 海外 DNS 预设名
 const FOREIGN_DNS_NAMES: &[&str] = &["google", "cloudflare", "opendns"];
 
+/// 判断两个 IPv4 地址是否在同一 /24 子网
+fn ip_in_subnet_24(ip: &str, server: &str) -> bool {
+    let (Ok(ip_addr), Ok(server_addr)) = (ip.parse::<Ipv4Addr>(), server.parse::<Ipv4Addr>()) else {
+        return false;
+    };
+    let ip_octets = ip_addr.octets();
+    let server_octets = server_addr.octets();
+    ip_octets[0] == server_octets[0]
+        && ip_octets[1] == server_octets[1]
+        && ip_octets[2] == server_octets[2]
+}
+
 /// 判断 IP 是否属于已知国内 DNS 服务器
 pub fn is_domestic_dns(ip: &str) -> bool {
     DOMESTIC_DNS_NAMES.iter().any(|name| {
         DNS_PRESETS.iter()
             .find(|(n, _)| n == name)
-            .is_some_and(|(_, servers)| servers.iter().any(|s| ip.starts_with(&s[..s.rfind('.').unwrap_or(s.len())])))
+            .is_some_and(|(_, servers)| servers.iter().any(|s| ip_in_subnet_24(ip, s)))
     })
 }
 
@@ -35,7 +49,7 @@ pub fn is_foreign_dns(ip: &str) -> bool {
     FOREIGN_DNS_NAMES.iter().any(|name| {
         DNS_PRESETS.iter()
             .find(|(n, _)| n == name)
-            .is_some_and(|(_, servers)| servers.iter().any(|s| ip.starts_with(&s[..s.rfind('.').unwrap_or(s.len())])))
+            .is_some_and(|(_, servers)| servers.iter().any(|s| ip_in_subnet_24(ip, s)))
     })
 }
 

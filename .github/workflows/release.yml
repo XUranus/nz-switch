@@ -97,6 +97,33 @@ jobs:
           prerelease: false
           args: --target ${{ matrix.target }}
 
+      # 剥离 AppImage 中冲突的 GPU 库，避免与宿主机驱动版本不匹配导致 EGL_BAD_ALLOC
+      - name: Strip GPU libs from AppImage (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get install -y appimagetool || true
+          cd src-tauri/target/release/bundle/appimage
+          APPIMAGE=$(ls *.AppImage | head -1)
+          [ -z "$APPIMAGE" ] && exit 0
+          ./"$APPIMAGE" --appimage-extract
+          find squashfs-root -name "libwayland-*.so*" -delete
+          find squashfs-root -name "libEGL.so*" -delete
+          find squashfs-root -name "libGL.so*" -delete
+          appimagetool squashfs-root "$APPIMAGE"
+          rm -rf squashfs-root
+        env:
+          ARCH: x86_64
+
+      # 重新上传剥离后的 AppImage（覆盖 tauri-action 上传的版本）
+      - name: Re-upload stripped AppImage (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: src-tauri/target/release/bundle/appimage/*.AppImage
+          fail_on_unmatched_files: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   # ─── 构建 CLI 二进制 ─────────────────────────────────────────────
   build-cli:
     strategy:

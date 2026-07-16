@@ -1,5 +1,5 @@
-use nz-switch::cli::{Cli, Commands, ProfileAction};
-use nz-switch::{config, dns, doctor, env, format, local_config, mirror, profile, proxy};
+use nz_switch::cli::{Cli, Commands, ProfileAction};
+use nz_switch::{config, dns, doctor, env, format, local_config, mirror, profile, proxy};
 
 use clap::Parser;
 use clap_complete::Shell as CompleteShell;
@@ -94,7 +94,7 @@ fn cmd_switch(profile_name: &str, dry_run: bool) -> anyhow::Result<()> {
     let profile = profile::resolve_profile(profile_name)?;
 
     if dry_run {
-        return nz-switch::preview_switch(profile_name);
+        return nz_switch::preview_switch(profile_name);
     }
 
     println!(
@@ -103,7 +103,7 @@ fn cmd_switch(profile_name: &str, dry_run: bool) -> anyhow::Result<()> {
         profile.display_name.bold()
     );
 
-    let result = nz-switch::switch_profile(profile_name)?;
+    let result = nz_switch::switch_profile(profile_name)?;
 
     for err in &result.errors {
         println!("  ⚠ {err}");
@@ -230,19 +230,19 @@ fn cmd_status() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn cmd_config(action: nz-switch::cli::ConfigAction) -> anyhow::Result<()> {
+fn cmd_config(action: nz_switch::cli::ConfigAction) -> anyhow::Result<()> {
     match action {
-        nz-switch::cli::ConfigAction::Show => {
+        nz_switch::cli::ConfigAction::Show => {
             let cfg = config::AppConfig::load()?;
             println!("{}", "⚙️  当前配置".cyan().bold());
             println!();
             println!("{}", toml::to_string_pretty(&cfg)?);
         }
-        nz-switch::cli::ConfigAction::Path => {
+        nz_switch::cli::ConfigAction::Path => {
             let path = config::config_path()?;
             println!("{}", path.display());
         }
-        nz-switch::cli::ConfigAction::Edit => {
+        nz_switch::cli::ConfigAction::Edit => {
             let path = config::config_path()?;
             let editor = std::env::var("EDITOR").unwrap_or_else(|_| "vi".to_string());
             println!("{} 打开配置文件: {}", "📝".cyan(), path.display());
@@ -250,7 +250,7 @@ fn cmd_config(action: nz-switch::cli::ConfigAction) -> anyhow::Result<()> {
                 .arg(&path)
                 .status()?;
         }
-        nz-switch::cli::ConfigAction::Export { output } => {
+        nz_switch::cli::ConfigAction::Export { output } => {
             let cfg = config::AppConfig::load()?;
             let json = serde_json::to_string_pretty(&cfg)?;
 
@@ -264,7 +264,7 @@ fn cmd_config(action: nz-switch::cli::ConfigAction) -> anyhow::Result<()> {
                 }
             }
         }
-        nz-switch::cli::ConfigAction::Import { file, merge } => {
+        nz_switch::cli::ConfigAction::Import { file, merge } => {
             let content = std::fs::read_to_string(&file)?;
             let imported: config::AppConfig = if file.ends_with(".json") {
                 serde_json::from_str(&content)?
@@ -289,7 +289,7 @@ fn cmd_config(action: nz-switch::cli::ConfigAction) -> anyhow::Result<()> {
 
             println!("  配置文件: {}", config_path.display());
         }
-        nz-switch::cli::ConfigAction::Reset => {
+        nz_switch::cli::ConfigAction::Reset => {
             let config_path = config::config_path()?;
             let cfg = config::AppConfig::default();
             cfg.save(&config_path)?;
@@ -300,44 +300,44 @@ fn cmd_config(action: nz-switch::cli::ConfigAction) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn cmd_mirror(action: nz-switch::cli::MirrorAction) -> anyhow::Result<()> {
+fn cmd_mirror(action: nz_switch::cli::MirrorAction) -> anyhow::Result<()> {
     match action {
-        nz-switch::cli::MirrorAction::List { tool } => mirror::list_mirrors(tool.as_deref()),
-        nz-switch::cli::MirrorAction::Test { tool } => mirror::test_mirrors(tool.as_deref()),
-        nz-switch::cli::MirrorAction::Set { tool, source } => mirror::set_mirror(&tool, &source),
-        nz-switch::cli::MirrorAction::Reset { tool } => mirror::reset_mirror(&tool),
+        nz_switch::cli::MirrorAction::List { tool } => mirror::list_mirrors(tool.as_deref()),
+        nz_switch::cli::MirrorAction::Test { tool } => mirror::test_mirrors(tool.as_deref()),
+        nz_switch::cli::MirrorAction::Set { tool, source } => mirror::set_mirror(&tool, &source),
+        nz_switch::cli::MirrorAction::Reset { tool } => mirror::reset_mirror(&tool),
     }
 }
 
-fn cmd_proxy(action: nz-switch::cli::ProxyAction) -> anyhow::Result<()> {
+fn cmd_proxy(action: nz_switch::cli::ProxyAction) -> anyhow::Result<()> {
     match action {
-        nz-switch::cli::ProxyAction::Set { address } => proxy::set_proxy(&address),
-        nz-switch::cli::ProxyAction::On => proxy::enable_proxy(),
-        nz-switch::cli::ProxyAction::Off => proxy::disable_proxy(),
-        nz-switch::cli::ProxyAction::Test => proxy::test_proxy(),
+        nz_switch::cli::ProxyAction::Set { address } => proxy::set_proxy(&address),
+        nz_switch::cli::ProxyAction::On => proxy::enable_proxy(),
+        nz_switch::cli::ProxyAction::Off => proxy::disable_proxy(),
+        nz_switch::cli::ProxyAction::Test => proxy::test_proxy(),
     }
 }
 
-fn cmd_env(action: nz-switch::cli::EnvAction) -> anyhow::Result<()> {
+fn cmd_env(action: nz_switch::cli::EnvAction) -> anyhow::Result<()> {
     match action {
-        nz-switch::cli::EnvAction::Show => env::show_env(),
-        nz-switch::cli::EnvAction::Set { key, value } => env::set_env(&key, &value),
-        nz-switch::cli::EnvAction::Unset { key } => env::unset_env(&key),
-        nz-switch::cli::EnvAction::Proxy => env::show_proxy_env(),
+        nz_switch::cli::EnvAction::Show => env::show_env(),
+        nz_switch::cli::EnvAction::Set { key, value } => env::set_env(&key, &value),
+        nz_switch::cli::EnvAction::Unset { key } => env::unset_env(&key),
+        nz_switch::cli::EnvAction::Proxy => env::show_proxy_env(),
     }
 }
 
-fn cmd_local(action: nz-switch::cli::LocalAction) -> anyhow::Result<()> {
+fn cmd_local(action: nz_switch::cli::LocalAction) -> anyhow::Result<()> {
     match action {
-        nz-switch::cli::LocalAction::Show => local_config::show_local_config(),
-        nz-switch::cli::LocalAction::Init => {
+        nz_switch::cli::LocalAction::Show => local_config::show_local_config(),
+        nz_switch::cli::LocalAction::Init => {
             match local_config::create_local_config() {
                 Ok(path) => println!("{} 项目配置文件已创建: {}", "✅".green(), path.display()),
                 Err(e) => println!("{} {}", "⚠".yellow(), e),
             }
             Ok(())
         }
-        nz-switch::cli::LocalAction::Path => {
+        nz_switch::cli::LocalAction::Path => {
             match local_config::find_local_config() {
                 Some(path) => println!("{}", path.display()),
                 None => println!("(未找到项目配置文件)"),
@@ -347,11 +347,11 @@ fn cmd_local(action: nz-switch::cli::LocalAction) -> anyhow::Result<()> {
     }
 }
 
-fn cmd_dns(action: nz-switch::cli::DnsAction) -> anyhow::Result<()> {
+fn cmd_dns(action: nz_switch::cli::DnsAction) -> anyhow::Result<()> {
     match action {
-        nz-switch::cli::DnsAction::Show => dns::show_dns(),
-        nz-switch::cli::DnsAction::List => dns::list_dns_presets(),
-        nz-switch::cli::DnsAction::Set { source } => dns::set_dns(&source),
+        nz_switch::cli::DnsAction::Show => dns::show_dns(),
+        nz_switch::cli::DnsAction::List => dns::list_dns_presets(),
+        nz_switch::cli::DnsAction::Set { source } => dns::set_dns(&source),
     }
 }
 
@@ -429,13 +429,13 @@ fn cmd_profile(action: ProfileAction) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn cmd_completions(shell: nz-switch::cli::Shell) -> anyhow::Result<()> {
+fn cmd_completions(shell: nz_switch::cli::Shell) -> anyhow::Result<()> {
     let complete_shell = match shell {
-        nz-switch::cli::Shell::Bash => CompleteShell::Bash,
-        nz-switch::cli::Shell::Zsh => CompleteShell::Zsh,
-        nz-switch::cli::Shell::Fish => CompleteShell::Fish,
-        nz-switch::cli::Shell::PowerShell => CompleteShell::PowerShell,
-        nz-switch::cli::Shell::Elvish => CompleteShell::Elvish,
+        nz_switch::cli::Shell::Bash => CompleteShell::Bash,
+        nz_switch::cli::Shell::Zsh => CompleteShell::Zsh,
+        nz_switch::cli::Shell::Fish => CompleteShell::Fish,
+        nz_switch::cli::Shell::PowerShell => CompleteShell::PowerShell,
+        nz_switch::cli::Shell::Elvish => CompleteShell::Elvish,
     };
 
     let mut cmd = <Cli as clap::CommandFactory>::command();
@@ -448,23 +448,23 @@ fn cmd_completions(shell: nz-switch::cli::Shell) -> anyhow::Result<()> {
 
     eprintln!();
     match shell {
-        nz-switch::cli::Shell::Bash => {
+        nz_switch::cli::Shell::Bash => {
             eprintln!("{} 安装到 bash:", "💡".green());
             eprintln!("  nz-switch completions bash > ~/.local/share/bash-completion/completions/nz-switch");
         }
-        nz-switch::cli::Shell::Zsh => {
+        nz_switch::cli::Shell::Zsh => {
             eprintln!("{} 安装到 zsh:", "💡".green());
             eprintln!("  nz-switch completions zsh > ~/.zfunc/_nz-switch");
         }
-        nz-switch::cli::Shell::Fish => {
+        nz_switch::cli::Shell::Fish => {
             eprintln!("{} 安装到 fish:", "💡".green());
             eprintln!("  nz-switch completions fish > ~/.config/fish/completions/nz-switch.fish");
         }
-        nz-switch::cli::Shell::PowerShell => {
+        nz_switch::cli::Shell::PowerShell => {
             eprintln!("{} 安装到 PowerShell:", "💡".green());
             eprintln!("  nz-switch completions powershell | Out-String | Invoke-Expression");
         }
-        nz-switch::cli::Shell::Elvish => {
+        nz_switch::cli::Shell::Elvish => {
             eprintln!("{} 安装到 elvish:", "💡".green());
             eprintln!("  nz-switch completions elvish > ~/.config/elvish/completions/nz-switch.elv");
         }

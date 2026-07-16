@@ -8,6 +8,7 @@ import MirrorPanel from "./components/MirrorPanel";
 import DoctorPanel from "./components/DoctorPanel";
 import SettingsPanel from "./components/SettingsPanel";
 import ConfirmModal from "./components/ConfirmModal";
+import TitleBar from "./components/TitleBar";
 import { IconDashboard, IconMirror, IconDoctor, IconSettings, IconSun, IconMoon } from "./icons";
 import "./glass.css";
 
@@ -101,6 +102,8 @@ function App() {
 
   return (
     <div className="app">
+      <TitleBar />
+      <div className="app-body">
       {/* Sidebar */}
       <nav className="sidebar" aria-label="主导航">
         <div className="sidebar-logo">
@@ -166,6 +169,7 @@ function App() {
           </>
         )}
       </main>
+      </div>
 
       <ConfirmModal
         open={pendingSwitch !== null}

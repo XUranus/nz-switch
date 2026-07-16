@@ -488,11 +488,7 @@ fn apply_vscode_mirror(source: &str) -> Result<ApplyResult> {
 /// 应用 Android Google Maven 镜像 (仅打印提示)
 fn apply_android_maven_mirror(source: &str) -> Result<ApplyResult> {
     let (google_url, gradle_url) = match source {
-        "aliyun-google" => (
-            "https://maven.aliyun.com/repository/google",
-            "https://maven.aliyun.com/repository/gradle-plugin",
-        ),
-        "aliyun-gradle" => (
+        "aliyun-google" | "aliyun-gradle" => (
             "https://maven.aliyun.com/repository/google",
             "https://maven.aliyun.com/repository/gradle-plugin",
         ),
