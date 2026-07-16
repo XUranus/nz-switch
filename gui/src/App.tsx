@@ -103,33 +103,10 @@ function App() {
   return (
     <div className="app">
       <TitleBar />
-      <div className="app-body">
-      {/* Sidebar */}
-      <nav className="sidebar" aria-label="主导航">
-        <div className="sidebar-logo">
-          <h1>nz-switch</h1>
-          <p>开发环境管理</p>
-        </div>
 
-        <button className={`nav-item ${tab === "dashboard" ? "active" : ""}`} onClick={() => setTab("dashboard")} aria-current={tab === "dashboard" ? "page" : undefined}>
-          <IconDashboard size={16} />
-          状态总览
-        </button>
-        <button className={`nav-item ${tab === "mirrors" ? "active" : ""}`} onClick={() => setTab("mirrors")} aria-current={tab === "mirrors" ? "page" : undefined}>
-          <IconMirror size={16} />
-          镜像源
-        </button>
-        <button className={`nav-item ${tab === "doctor" ? "active" : ""}`} onClick={() => setTab("doctor")} aria-current={tab === "doctor" ? "page" : undefined}>
-          <IconDoctor size={16} />
-          诊断
-        </button>
-        <button className={`nav-item ${tab === "settings" ? "active" : ""}`} onClick={() => setTab("settings")} aria-current={tab === "settings" ? "page" : undefined}>
-          <IconSettings size={16} />
-          设置
-        </button>
-
-        <div className="sidebar-footer">
-          <div className="sidebar-footer-label">当前环境</div>
+      {/* Top Nav */}
+      <nav className="top-nav" aria-label="主导航">
+        <div className="top-nav-left">
           <button
             className={`profile-btn ${isCn ? "is-cn" : ""}`}
             onClick={() => setPendingSwitch(isCn ? "global" : "cn")}
@@ -138,12 +115,29 @@ function App() {
             <span>{loading ? "切换中..." : isCn ? "中国内地" : "海外"}</span>
           </button>
           {switchToast && (
-            <div className={`sidebar-error ${switchToast.type === "error" ? "sidebar-error-error" : "sidebar-error-warn"}`} title={switchToast.text}>
-              ⚠️ {switchToast.text.length > 30 ? switchToast.text.slice(0, 30) + "..." : switchToast.text}
+            <div className={`nav-toast ${switchToast.type === "error" ? "nav-toast-error" : "nav-toast-warn"}`} title={switchToast.text}>
+              ⚠️ {switchToast.text.length > 40 ? switchToast.text.slice(0, 40) + "..." : switchToast.text}
             </div>
           )}
-
-          {/* 主题切换 */}
+        </div>
+        <div className="top-nav-tabs">
+          <button className={`nav-tab ${tab === "dashboard" ? "active" : ""}`} onClick={() => setTab("dashboard")} aria-current={tab === "dashboard" ? "page" : undefined}>
+            <IconDashboard size={14} />
+            状态总览
+          </button>
+          <button className={`nav-tab ${tab === "mirrors" ? "active" : ""}`} onClick={() => setTab("mirrors")} aria-current={tab === "mirrors" ? "page" : undefined}>
+            <IconMirror size={14} />
+            镜像源
+          </button>
+          <button className={`nav-tab ${tab === "doctor" ? "active" : ""}`} onClick={() => setTab("doctor")} aria-current={tab === "doctor" ? "page" : undefined}>
+            <IconDoctor size={14} />
+            诊断
+          </button>
+          <button className={`nav-tab ${tab === "settings" ? "active" : ""}`} onClick={() => setTab("settings")} aria-current={tab === "settings" ? "page" : undefined}>
+            <IconSettings size={14} />
+            设置
+          </button>
+          <span className="nav-divider" />
           <button className="theme-toggle-btn" onClick={cycleTheme} title={`当前: ${themeLabel}，点击切换`}>
             {themeIcon}
             <span>{themeLabel}</span>
@@ -169,7 +163,6 @@ function App() {
           </>
         )}
       </main>
-      </div>
 
       <ConfirmModal
         open={pendingSwitch !== null}
