@@ -102,7 +102,24 @@ function App() {
 
   return (
     <div className="app">
-      <TitleBar>
+      <TitleBar
+        profileSlot={
+          <>
+            <button
+              className={`titlebar-profile-btn ${isCn ? "is-cn" : ""}`}
+              onClick={() => setPendingSwitch(isCn ? "global" : "cn")}
+              disabled={loading}
+            >
+              {loading ? "切换中..." : isCn ? "中国内地" : "海外"}
+            </button>
+            {switchToast && (
+              <span className={`titlebar-toast ${switchToast.type === "error" ? "titlebar-toast-error" : "titlebar-toast-warn"}`} title={switchToast.text}>
+                ⚠️
+              </span>
+            )}
+          </>
+        }
+      >
         <button className={`nav-tab ${tab === "dashboard" ? "active" : ""}`} onClick={() => setTab("dashboard")} aria-current={tab === "dashboard" ? "page" : undefined}>
           <IconDashboard size={14} />
           状态总览
@@ -119,31 +136,11 @@ function App() {
           <IconSettings size={14} />
           设置
         </button>
+        <span className="nav-divider" />
+        <button className="titlebar-theme-btn" onClick={cycleTheme} title={`当前: ${themeLabel}，点击切换`}>
+          {themeIcon}
+        </button>
       </TitleBar>
-
-      {/* Top Nav */}
-      <nav className="top-nav" aria-label="主导航">
-        <div className="top-nav-left">
-          <button
-            className={`profile-btn ${isCn ? "is-cn" : ""}`}
-            onClick={() => setPendingSwitch(isCn ? "global" : "cn")}
-            disabled={loading}
-          >
-            <span>{loading ? "切换中..." : isCn ? "中国内地" : "海外"}</span>
-          </button>
-          {switchToast && (
-            <div className={`nav-toast ${switchToast.type === "error" ? "nav-toast-error" : "nav-toast-warn"}`} title={switchToast.text}>
-              ⚠️ {switchToast.text.length > 40 ? switchToast.text.slice(0, 40) + "..." : switchToast.text}
-            </div>
-          )}
-        </div>
-        <div className="top-nav-right">
-          <button className="theme-toggle-btn" onClick={cycleTheme} title={`当前: ${themeLabel}，点击切换`}>
-            {themeIcon}
-            <span>{themeLabel}</span>
-          </button>
-        </div>
-      </nav>
 
       {/* Main Content */}
       <main className="main-content">

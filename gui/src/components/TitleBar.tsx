@@ -4,9 +4,10 @@ import { IconMinimize, IconMaximize, IconRestore, IconClose } from "../icons";
 
 interface TitleBarProps {
   children?: ReactNode;
+  profileSlot?: ReactNode;
 }
 
-export default function TitleBar({ children }: TitleBarProps) {
+export default function TitleBar({ children, profileSlot }: TitleBarProps) {
   const [maximized, setMaximized] = useState(false);
   const appWindow = getCurrentWindow();
 
@@ -22,6 +23,7 @@ export default function TitleBar({ children }: TitleBarProps) {
     <div className="titlebar" data-tauri-drag-region>
       <div className="titlebar-drag" data-tauri-drag-region>
         <span className="titlebar-title">nz-switch</span>
+        {profileSlot && <span className="titlebar-profile">{profileSlot}</span>}
       </div>
       <div className="titlebar-center">
         {children}

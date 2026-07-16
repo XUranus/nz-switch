@@ -170,33 +170,7 @@ body {
 
 /* ─── Top Nav ─────────────────────────────────────────────────── */
 
-.top-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 40px;
-  min-height: 40px;
-  padding: 0 16px;
-  background: var(--glass-fill);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border-bottom: 1px solid var(--glass-border);
-  gap: 12px;
-}
-
-.top-nav-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.top-nav-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
+/* top-nav removed — profile switcher and tabs moved to titlebar */
 
 .nav-tab {
   display: flex;
@@ -230,15 +204,6 @@ body {
   margin: 0 6px;
 }
 
-.nav-toast {
-  font-size: 11px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.nav-toast-error { color: var(--status-error); }
-.nav-toast-warn  { color: var(--status-warn); }
 
 /* ─── Custom Titlebar ─────────────────────────────────────────── */
 
@@ -310,6 +275,64 @@ body {
 .titlebar-btn-close:hover {
   background: rgba(239, 68, 68, 0.8);
   color: #fff;
+}
+
+.titlebar-profile {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 14px;
+}
+
+.titlebar-profile-btn {
+  padding: 3px 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  background: var(--glass-fill-hover);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+  pointer-events: auto;
+}
+
+.titlebar-profile-btn:hover {
+  background: var(--glass-fill-active);
+  color: var(--text-primary);
+  border-color: var(--glass-border-bright);
+}
+
+.titlebar-profile-btn.is-cn {
+  border-color: rgba(90, 200, 250, 0.3);
+  color: var(--accent);
+}
+
+.titlebar-toast {
+  font-size: 12px;
+  pointer-events: auto;
+}
+
+.titlebar-toast-error { color: var(--status-error); }
+.titlebar-toast-warn  { color: var(--status-warn); }
+
+.titlebar-theme-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.titlebar-theme-btn:hover {
+  background: var(--glass-fill-hover);
+  color: var(--text-primary);
 }
 
 /* ─── Glass Sidebar ────────────────────────────────────────────── */
