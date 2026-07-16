@@ -69,22 +69,29 @@ export default function DoctorPanel() {
         </div>
       )}
 
-      {/* Checks List */}
-      <div className="glass-card doctor-checks-card">
+      {/* Checks Table */}
+      <div className="glass-card">
         {checks.length === 0 && !loading ? (
           <div className="empty-state">无检查结果</div>
         ) : (
-          checks.map((check) => (
-            <div key={check.name} className="doctor-check-item">
-              <StatusIcon status={check.status} />
-              <div className="doctor-check-body">
-                <div className="doctor-check-name">{check.name}</div>
-                <div className={`doctor-check-msg doctor-check-${check.status}`}>
-                  {check.message}
-                </div>
-              </div>
-            </div>
-          ))
+          <table className="doctor-table">
+            <thead>
+              <tr>
+                <th className="col-status">状态</th>
+                <th className="col-name">检查项</th>
+                <th>详情</th>
+              </tr>
+            </thead>
+            <tbody>
+              {checks.map((check) => (
+                <tr key={check.name} className={`doctor-row doctor-row-${check.status}`}>
+                  <td className="col-status"><StatusIcon status={check.status} /></td>
+                  <td className="col-name">{check.name}</td>
+                  <td className={`doctor-msg doctor-msg-${check.status}`}>{check.message}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>

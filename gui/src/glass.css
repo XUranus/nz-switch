@@ -992,74 +992,66 @@ body {
   margin-bottom: 24px;
 }
 
-.doctor-checks-card {
-  padding: 0;
-  overflow: hidden;
+.doctor-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
 }
 
-.doctor-check-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
+.doctor-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
   border-bottom: 1px solid var(--glass-border);
 }
 
-.doctor-check-item:last-child {
+.doctor-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--glass-border);
+  vertical-align: middle;
+}
+
+.doctor-table tr:last-child td {
   border-bottom: none;
 }
 
+.doctor-table .col-status {
+  width: 48px;
+  text-align: center;
+}
+
+.doctor-table .col-name {
+  width: 140px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.doctor-msg {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.doctor-msg-ok    { color: var(--status-ok); }
+.doctor-msg-warn  { color: var(--status-warn); }
+.doctor-msg-error { color: var(--status-error); }
+
 .doctor-icon {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  flex-shrink: 0;
 }
 
-.doctor-icon-ok {
-  background: rgba(52, 211, 153, 0.15);
-  color: var(--status-ok);
-}
-
-.doctor-icon-warn {
-  background: rgba(251, 191, 36, 0.15);
-  color: var(--status-warn);
-}
-
-.doctor-icon-error {
-  background: rgba(248, 113, 113, 0.15);
-  color: var(--status-error);
-}
-
-.doctor-check-body {
-  flex: 1;
-}
-
-.doctor-check-name {
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--text-primary);
-}
-
-.doctor-check-msg {
-  font-size: 12px;
-  margin-top: 2px;
-}
-
-.doctor-check-ok {
-  color: var(--status-ok);
-}
-
-.doctor-check-warn {
-  color: var(--status-warn);
-}
-
-.doctor-check-error {
-  color: var(--status-error);
-}
+.doctor-icon-ok    { background: var(--status-ok-bg); }
+.doctor-icon-warn  { background: var(--status-warn-bg); }
+.doctor-icon-error { background: var(--status-error-bg); }
 
 .doctor-error-card {
   display: flex;
