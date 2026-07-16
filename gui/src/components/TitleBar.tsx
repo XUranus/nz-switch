@@ -1,8 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { IconMinimize, IconMaximize, IconRestore, IconClose } from "../icons";
 
-export default function TitleBar() {
+interface TitleBarProps {
+  children?: ReactNode;
+}
+
+export default function TitleBar({ children }: TitleBarProps) {
   const [maximized, setMaximized] = useState(false);
   const appWindow = getCurrentWindow();
 
@@ -18,6 +22,9 @@ export default function TitleBar() {
     <div className="titlebar" data-tauri-drag-region>
       <div className="titlebar-drag" data-tauri-drag-region>
         <span className="titlebar-title">nz-switch</span>
+      </div>
+      <div className="titlebar-center">
+        {children}
       </div>
       <div className="titlebar-controls">
         <button className="titlebar-btn" onClick={() => appWindow.minimize()} title="最小化">

@@ -102,7 +102,24 @@ function App() {
 
   return (
     <div className="app">
-      <TitleBar />
+      <TitleBar>
+        <button className={`nav-tab ${tab === "dashboard" ? "active" : ""}`} onClick={() => setTab("dashboard")} aria-current={tab === "dashboard" ? "page" : undefined}>
+          <IconDashboard size={14} />
+          状态总览
+        </button>
+        <button className={`nav-tab ${tab === "mirrors" ? "active" : ""}`} onClick={() => setTab("mirrors")} aria-current={tab === "mirrors" ? "page" : undefined}>
+          <IconMirror size={14} />
+          镜像源
+        </button>
+        <button className={`nav-tab ${tab === "doctor" ? "active" : ""}`} onClick={() => setTab("doctor")} aria-current={tab === "doctor" ? "page" : undefined}>
+          <IconDoctor size={14} />
+          诊断
+        </button>
+        <button className={`nav-tab ${tab === "settings" ? "active" : ""}`} onClick={() => setTab("settings")} aria-current={tab === "settings" ? "page" : undefined}>
+          <IconSettings size={14} />
+          设置
+        </button>
+      </TitleBar>
 
       {/* Top Nav */}
       <nav className="top-nav" aria-label="主导航">
@@ -120,24 +137,7 @@ function App() {
             </div>
           )}
         </div>
-        <div className="top-nav-tabs">
-          <button className={`nav-tab ${tab === "dashboard" ? "active" : ""}`} onClick={() => setTab("dashboard")} aria-current={tab === "dashboard" ? "page" : undefined}>
-            <IconDashboard size={14} />
-            状态总览
-          </button>
-          <button className={`nav-tab ${tab === "mirrors" ? "active" : ""}`} onClick={() => setTab("mirrors")} aria-current={tab === "mirrors" ? "page" : undefined}>
-            <IconMirror size={14} />
-            镜像源
-          </button>
-          <button className={`nav-tab ${tab === "doctor" ? "active" : ""}`} onClick={() => setTab("doctor")} aria-current={tab === "doctor" ? "page" : undefined}>
-            <IconDoctor size={14} />
-            诊断
-          </button>
-          <button className={`nav-tab ${tab === "settings" ? "active" : ""}`} onClick={() => setTab("settings")} aria-current={tab === "settings" ? "page" : undefined}>
-            <IconSettings size={14} />
-            设置
-          </button>
-          <span className="nav-divider" />
+        <div className="top-nav-right">
           <button className="theme-toggle-btn" onClick={cycleTheme} title={`当前: ${themeLabel}，点击切换`}>
             {themeIcon}
             <span>{themeLabel}</span>
