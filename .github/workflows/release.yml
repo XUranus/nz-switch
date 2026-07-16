@@ -70,7 +70,7 @@ jobs:
           cache-dependency-path: gui/pnpm-lock.yaml
 
       - name: Install frontend dependencies
-        run: pnpm install --frozen-lockfile --config.onlyBuiltDependencies=esbuild
+        run: pnpm install --frozen-lockfile --ignore-scripts
         working-directory: gui
 
       - name: Build Tauri app
