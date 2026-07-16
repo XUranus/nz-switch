@@ -67,10 +67,8 @@ jobs:
           cache-dependency-path: gui/pnpm-lock.yaml
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --config.onlyBuiltDependencies=esbuild
         working-directory: gui
-        env:
-          PNPM_ONLY_BUILT_DEPS: esbuild
 
       - name: TypeScript type check
         run: pnpm typecheck
