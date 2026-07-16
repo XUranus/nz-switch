@@ -49,6 +49,10 @@
   --toml-comment: #6b7280;
   --toml-section: #f472b6;
   --toml-date: #fbbf24;
+
+  /* Code editor backgrounds */
+  --editor-bg: rgba(0, 0, 0, 0.3);
+  --editor-gutter-bg: rgba(0, 0, 0, 0.2);
 }
 
 /* ─── Light Theme (system preference) ────────────────────────── */
@@ -76,6 +80,19 @@
     --status-warn-bg: rgba(245, 158, 11, 0.1);
     --status-error: #ef4444;
     --status-error-bg: rgba(239, 68, 68, 0.1);
+
+    /* TOML syntax — light */
+    --toml-key: #0369a1;
+    --toml-str: #15803d;
+    --toml-num: #c2410c;
+    --toml-bool: #7c3aed;
+    --toml-comment: #9ca3af;
+    --toml-section: #be185d;
+    --toml-date: #b45309;
+
+    /* Code editor backgrounds — light */
+    --editor-bg: rgba(0, 0, 0, 0.04);
+    --editor-gutter-bg: rgba(0, 0, 0, 0.03);
   }
 }
 
@@ -109,6 +126,10 @@
   --toml-bool: #7c3aed;
   --toml-comment: #9ca3af;
   --toml-section: #be185d;
+
+  /* Code editor backgrounds — light */
+  --editor-bg: rgba(0, 0, 0, 0.04);
+  --editor-gutter-bg: rgba(0, 0, 0, 0.03);
   --toml-date: #b45309;
 }
 
@@ -1272,14 +1293,14 @@ body {
   display: flex;
   border-radius: var(--radius-lg);
   border: 1px solid var(--glass-border);
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--editor-bg);
   overflow: hidden;
   animation: fadeIn 0.3s ease-out;
 }
 
 .toml-editor-gutter {
   padding: 16px 0;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--editor-gutter-bg);
   border-right: 1px solid var(--glass-border);
   user-select: none;
   overflow: hidden;
