@@ -1,9 +1,11 @@
 // 镜像源实时检测
 
-use super::env_vars;
-use super::paths;
 use super::config;
-use super::parse::{parse_ini_value, parse_key_eq_value, parse_maven_mirror_url, parse_apt_sources};
+use super::env_vars;
+use super::parse::{
+    parse_apt_sources, parse_ini_value, parse_key_eq_value, parse_maven_mirror_url,
+};
+use super::paths;
 
 /// 读取系统实际配置，检测当前工具正在使用的镜像源
 /// 返回镜像预设名（如能匹配），否则返回 None
@@ -23,14 +25,20 @@ pub fn detect_current_mirror(tool: &str) -> Option<String> {
         Some(url) => url,
         None => {
             // 找 "官方" 条目，返回其 name
-            return mirror_def.mirrors.iter()
+            return mirror_def
+                .mirrors
+                .iter()
                 .find(|m| m.enabled && m.name == "official")
                 .map(|m| m.name.clone());
         }
     };
 
     // 先检查 raw_url 本身是否就是一个预设名（如 pip.conf 中 index-url = tsinghua）
-    if mirror_def.mirrors.iter().any(|m| m.name == raw_url && m.enabled) {
+    if mirror_def
+        .mirrors
+        .iter()
+        .any(|m| m.name == raw_url && m.enabled)
+    {
         return Some(raw_url);
     }
 
@@ -41,7 +49,9 @@ pub fn detect_current_mirror(tool: &str) -> Option<String> {
 
     // 匹配失败：检查是否为官方源 URL（normalized 或前缀比较）
     let normalized = raw_url.trim_end_matches('/');
-    mirror_def.mirrors.iter()
+    mirror_def
+        .mirrors
+        .iter()
         .find(|m| m.enabled && m.name == "official")
         .filter(|m| {
             let entry_norm = m.url.trim_end_matches('/');
@@ -92,7 +102,8 @@ fn detect_file_mirror(tool: &str) -> Option<String> {
                     let val = val.trim_matches('"');
                     // 去掉协议前缀
                     let url = val
-                        .strip_prefix("sparse+").or_else(|| val.strip_prefix("git+"))
+                        .strip_prefix("sparse+")
+                        .or_else(|| val.strip_prefix("git+"))
                         .unwrap_or(val);
                     if url.starts_with("http") {
                         return Some(url.trim_end_matches('/').to_string());
@@ -107,7 +118,9 @@ fn detect_file_mirror(tool: &str) -> Option<String> {
             // 从 default_channels 或 custom_channels 提取 base URL
             for line in content.lines() {
                 let trimmed = line.trim().trim_start_matches("- ");
-                if !trimmed.starts_with("http") { continue; }
+                if !trimmed.starts_with("http") {
+                    continue;
+                }
                 let base = if let Some(idx) = trimmed.find("/pkgs") {
                     &trimmed[..idx]
                 } else if let Some(idx) = trimmed.find("/cloud") {
@@ -171,7 +184,8 @@ fn detect_env_mirror(tool: &str) -> Option<String> {
     let var_name = env_vars::primary_env_var(tool)?;
 
     // 优先从进程环境读取
-    let val = std::env::var(var_name).ok()
+    let val = std::env::var(var_name)
+        .ok()
         .filter(|v| !v.is_empty())
         // 回退：从 shell 配置文件读取 export VAR='...'
         .or_else(|| read_env_from_shell_rc(var_name))?;
@@ -207,13 +221,17 @@ fn read_env_from_shell_rc(var_name: &str) -> Option<String> {
                 let rest = &trimmed[export_sq.len()..];
                 if let Some(end) = rest.find('\'') {
                     let val = rest[..end].trim();
-                    if !val.is_empty() { return Some(val.to_string()); }
+                    if !val.is_empty() {
+                        return Some(val.to_string());
+                    }
                 }
             } else if trimmed.starts_with(&export_dq) {
                 let rest = &trimmed[export_dq.len()..];
                 if let Some(end) = rest.find('"') {
                     let val = rest[..end].trim();
-                    if !val.is_empty() { return Some(val.to_string()); }
+                    if !val.is_empty() {
+                        return Some(val.to_string());
+                    }
                 }
             } else if trimmed.starts_with(&export_eq)
                 && !trimmed.starts_with(&export_sq)
@@ -227,7 +245,9 @@ fn read_env_from_shell_rc(var_name: &str) -> Option<String> {
                 } else {
                     raw.trim()
                 };
-                if !val.is_empty() { return Some(val.to_string()); }
+                if !val.is_empty() {
+                    return Some(val.to_string());
+                }
             }
         }
     }
@@ -267,10 +287,12 @@ fn detect_manual_mirror(tool: &str) -> Option<String> {
         "choco" => {
             // Windows: %ProgramData%\chocolatey\config\chocolatey.config
             if cfg!(target_os = "windows") {
-                let program_data = std::env::var("ProgramData")
-                    .unwrap_or_else(|_| r"C:\ProgramData".to_string());
+                let program_data =
+                    std::env::var("ProgramData").unwrap_or_else(|_| r"C:\ProgramData".to_string());
                 let path = std::path::PathBuf::from(program_data)
-                    .join("chocolatey").join("config").join("chocolatey.config");
+                    .join("chocolatey")
+                    .join("config")
+                    .join("chocolatey.config");
                 let content = std::fs::read_to_string(&path).ok()?;
                 // <source id="mirror" value="https://..." />
                 for line in content.lines() {
@@ -296,7 +318,10 @@ fn detect_manual_mirror(tool: &str) -> Option<String> {
             // <add key="Source" value="https://..." />
             for line in content.lines() {
                 let trimmed = line.trim();
-                if trimmed.contains("key=") && trimmed.contains("value=") && trimmed.contains("http") {
+                if trimmed.contains("key=")
+                    && trimmed.contains("value=")
+                    && trimmed.contains("http")
+                {
                     if let Some(start) = trimmed.find("value=\"") {
                         let rest = &trimmed[start + 7..];
                         if let Some(end) = rest.find('"') {
@@ -314,10 +339,14 @@ fn detect_manual_mirror(tool: &str) -> Option<String> {
             // gem sources 输出: * https://mirrors.tuna.tsinghua.edu.cn/rubygems/
             let output = std::process::Command::new("gem")
                 .args(["sources", "--list"])
-                .output().ok()?;
+                .output()
+                .ok()?;
             let stdout = String::from_utf8_lossy(&output.stdout);
             for line in stdout.lines() {
-                let trimmed = line.trim().trim_start_matches("* ").trim_start_matches("- ");
+                let trimmed = line
+                    .trim()
+                    .trim_start_matches("* ")
+                    .trim_start_matches("- ");
                 if trimmed.starts_with("http") && !trimmed.contains("rubygems.org") {
                     return Some(trimmed.to_string());
                 }
@@ -328,7 +357,8 @@ fn detect_manual_mirror(tool: &str) -> Option<String> {
             // composer config -g repo.packagist.url
             let output = std::process::Command::new("composer")
                 .args(["config", "-g", "repositories.packagist.url"])
-                .output().ok()?;
+                .output()
+                .ok()?;
             let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
             if stdout.starts_with("http") {
                 return Some(stdout);
@@ -339,7 +369,8 @@ fn detect_manual_mirror(tool: &str) -> Option<String> {
             // pod repo list 输出中有 URL
             let output = std::process::Command::new("pod")
                 .args(["repo", "list"])
-                .output().ok()?;
+                .output()
+                .ok()?;
             let stdout = String::from_utf8_lossy(&output.stdout);
             for line in stdout.lines() {
                 let trimmed = line.trim();
@@ -368,7 +399,8 @@ fn detect_manual_mirror(tool: &str) -> Option<String> {
             // python manual 类型是指 Python 安装包下载地址，无法自动检测
             None
         }
-        "android-maven" | "android-gradle" | "swift" | "k8s-gcr" | "k8s-registry" | "ghcr" | "quay" => {
+        "android-maven" | "android-gradle" | "swift" | "k8s-gcr" | "k8s-registry" | "ghcr"
+        | "quay" => {
             // 项目级别配置，无法全局检测
             None
         }
@@ -381,7 +413,9 @@ fn reverse_match_mirror(def: &config::MirrorDef, raw_url: &str) -> Option<String
     let normalized = raw_url.trim_end_matches('/');
 
     for entry in &def.mirrors {
-        if !entry.enabled { continue; }
+        if !entry.enabled {
+            continue;
+        }
         let entry_normalized = entry.url.trim_end_matches('/');
         // 精确匹配
         if normalized == entry_normalized {
@@ -391,27 +425,41 @@ fn reverse_match_mirror(def: &config::MirrorDef, raw_url: &str) -> Option<String
         if format!("{entry_normalized}/simple") == normalized {
             return Some(entry.name.clone());
         }
-        if normalized == entry_normalized.strip_suffix("/simple").unwrap_or(entry_normalized) {
+        if normalized
+            == entry_normalized
+                .strip_suffix("/simple")
+                .unwrap_or(entry_normalized)
+        {
             return Some(entry.name.clone());
         }
     }
 
     // 双向前缀匹配：处理检测端去掉了路径后缀（如 conda 的 /pkgs/main）的情况
     for entry in &def.mirrors {
-        if !entry.enabled { continue; }
+        if !entry.enabled {
+            continue;
+        }
         let entry_normalized = entry.url.trim_end_matches('/');
-        if normalized.len() > 8 && (normalized.starts_with(entry_normalized) || entry_normalized.starts_with(normalized)) {
+        if normalized.len() > 8
+            && (normalized.starts_with(entry_normalized)
+                || entry_normalized.starts_with(normalized))
+        {
             return Some(entry.name.clone());
         }
     }
 
     // 域名级别匹配：仅在 URL 无明显路径时尝试
     let raw_host = extract_host(raw_url);
-    let raw_path = normalized.strip_prefix("https://").or_else(|| normalized.strip_prefix("http://"))
-        .and_then(|s| s.split('/').nth(1)).unwrap_or("");
+    let raw_path = normalized
+        .strip_prefix("https://")
+        .or_else(|| normalized.strip_prefix("http://"))
+        .and_then(|s| s.split('/').nth(1))
+        .unwrap_or("");
     if raw_path.is_empty() {
         for entry in &def.mirrors {
-            if !entry.enabled { continue; }
+            if !entry.enabled {
+                continue;
+            }
             if let (Some(entry_host), Some(raw_host)) = (extract_host(&entry.url), raw_host) {
                 if entry_host == raw_host {
                     return Some(entry.name.clone());
@@ -425,7 +473,9 @@ fn reverse_match_mirror(def: &config::MirrorDef, raw_url: &str) -> Option<String
 
 /// 从 URL 中提取 host 部分
 fn extract_host(url: &str) -> Option<&str> {
-    let without_proto = url.strip_prefix("https://").or_else(|| url.strip_prefix("http://"))?;
+    let without_proto = url
+        .strip_prefix("https://")
+        .or_else(|| url.strip_prefix("http://"))?;
     Some(without_proto.split('/').next().unwrap_or(without_proto))
 }
 

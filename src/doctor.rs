@@ -1,8 +1,8 @@
+use crate::format;
+use crate::mirror;
 use anyhow::Result;
 use colored::Colorize;
 use serde::Serialize;
-use crate::format;
-use crate::mirror;
 
 /// 单项诊断结果
 #[derive(Serialize, Clone)]
@@ -41,7 +41,8 @@ pub fn run_diagnosis() -> Result<()> {
     // 读取当前 profile 判断是否国内环境
     let domestic = crate::config::AppConfig::load()
         .map(|cfg| {
-            cfg.profiles.get(&cfg.current_profile)
+            cfg.profiles
+                .get(&cfg.current_profile)
                 .is_some_and(is_domestic_profile)
         })
         .unwrap_or(false);
@@ -64,7 +65,11 @@ pub fn run_diagnosis() -> Result<()> {
                 format::err()
             }
         };
-        table.add_row(vec![icon, check.name.bold().to_string(), check.message.clone()]);
+        table.add_row(vec![
+            icon,
+            check.name.bold().to_string(),
+            check.message.clone(),
+        ]);
     }
 
     println!("{table}");
@@ -90,9 +95,18 @@ pub fn run_diagnosis() -> Result<()> {
 
 /// 已知的国内镜像域名关键词
 const CN_MIRROR_KEYWORDS: &[&str] = &[
-    "tuna", "ustc", "aliyun", "npmmirror", "taobao",
-    "rsproxy", "goproxy.cn", "goproxy.io", "hf-mirror",
-    "huaweicloud", "tencent", "163.com",
+    "tuna",
+    "ustc",
+    "aliyun",
+    "npmmirror",
+    "taobao",
+    "rsproxy",
+    "goproxy.cn",
+    "goproxy.io",
+    "hf-mirror",
+    "huaweicloud",
+    "tencent",
+    "163.com",
 ];
 
 /// 判断 URL 是否为国内镜像
@@ -103,9 +117,10 @@ fn is_cn_mirror_url(url: &str) -> bool {
 /// 判断是否为国内 profile（有中国镜像配置）
 pub fn is_domestic_profile(profile: &crate::profile::Profile) -> bool {
     let has_cn_mirror = profile.mirrors.values().any(|v| is_cn_mirror_url(v));
-    let has_cn_dns = profile.dns.as_ref().is_some_and(|d| {
-        d.servers.iter().any(|s| crate::dns::is_domestic_dns(s))
-    });
+    let has_cn_dns = profile
+        .dns
+        .as_ref()
+        .is_some_and(|d| d.servers.iter().any(|s| crate::dns::is_domestic_dns(s)));
     has_cn_mirror || has_cn_dns
 }
 
@@ -123,16 +138,23 @@ fn check_mirror(tool: &str, display_name: &str, domestic: bool) -> DoctorCheck {
             let is_default = url.as_deref().is_some_and(|u| {
                 mirror::config::find_mirror_def(tool)
                     .and_then(|def| def.mirrors.iter().find(|m| m.display_name == "官方"))
-                    .is_some_and(|official| official.url.trim_end_matches('/') == u.trim_end_matches('/'))
+                    .is_some_and(|official| {
+                        official.url.trim_end_matches('/') == u.trim_end_matches('/')
+                    })
             });
 
             if is_default {
                 DoctorCheck {
                     name: display_name.to_string(),
                     status: if domestic { "warn" } else { "ok" }.to_string(),
-                    message: if domestic { format!("{name} 使用默认源") } else { "使用默认源".to_string() },
+                    message: if domestic {
+                        format!("{name} 使用默认源")
+                    } else {
+                        "使用默认源".to_string()
+                    },
                 }
-            } else if url.as_deref().is_some_and(|u| is_cn_mirror_url(u)) || is_cn_mirror_url(&name) {
+            } else if url.as_deref().is_some_and(|u| is_cn_mirror_url(u)) || is_cn_mirror_url(&name)
+            {
                 DoctorCheck {
                     name: display_name.to_string(),
                     status: "ok".to_string(),
@@ -149,7 +171,11 @@ fn check_mirror(tool: &str, display_name: &str, domestic: bool) -> DoctorCheck {
         None => DoctorCheck {
             name: display_name.to_string(),
             status: if domestic { "warn" } else { "ok" }.to_string(),
-            message: if domestic { format!("未配置 {display_name}") } else { "使用默认源".to_string() },
+            message: if domestic {
+                format!("未配置 {display_name}")
+            } else {
+                "使用默认源".to_string()
+            },
         },
     }
 }
@@ -217,7 +243,12 @@ fn check_go(domestic: bool) -> DoctorCheck {
         Err(_) => DoctorCheck {
             name: "Go 代理".to_string(),
             status: if domestic { "warn" } else { "ok" }.to_string(),
-            message: if domestic { "GOPROXY 环境变量未设置" } else { "使用默认代理" }.to_string(),
+            message: if domestic {
+                "GOPROXY 环境变量未设置"
+            } else {
+                "使用默认代理"
+            }
+            .to_string(),
         },
     }
 }
@@ -310,7 +341,12 @@ fn check_brew(domestic: bool) -> DoctorCheck {
                 DoctorCheck {
                     name: "Homebrew 镜像".to_string(),
                     status: if domestic { "warn" } else { "ok" }.to_string(),
-                    message: if domestic { "brew 已安装但未配置镜像源" } else { "brew 已安装，使用默认源" }.to_string(),
+                    message: if domestic {
+                        "brew 已安装但未配置镜像源"
+                    } else {
+                        "brew 已安装，使用默认源"
+                    }
+                    .to_string(),
                 }
             } else {
                 DoctorCheck {
@@ -343,7 +379,8 @@ fn check_dns(domestic: bool) -> DoctorCheck {
     }
 
     let content = std::fs::read_to_string(resolv_path).unwrap_or_default();
-    let servers: Vec<&str> = content.lines()
+    let servers: Vec<&str> = content
+        .lines()
         .filter_map(|line| {
             let trimmed = line.trim();
             if trimmed.starts_with("nameserver") {

@@ -3,9 +3,9 @@
 use anyhow::Result;
 use colored::Colorize;
 
+use super::config;
 use super::env_vars;
 use super::paths;
-use super::config;
 
 /// 重置某个工具的镜像源为默认（同时清除工具配置文件和 nz-switch 配置）
 pub fn reset_mirror(tool: &str) -> Result<()> {
@@ -25,7 +25,8 @@ pub fn reset_mirror(tool: &str) -> Result<()> {
 
             if npmrc.exists() {
                 let content = std::fs::read_to_string(&npmrc)?;
-                let new_content: String = content.lines()
+                let new_content: String = content
+                    .lines()
                     .filter(|line| !line.starts_with("registry="))
                     .collect::<Vec<_>>()
                     .join("\n");
@@ -40,7 +41,8 @@ pub fn reset_mirror(tool: &str) -> Result<()> {
 
             if yarnrc.exists() {
                 let content = std::fs::read_to_string(&yarnrc)?;
-                let new_content: String = content.lines()
+                let new_content: String = content
+                    .lines()
                     .filter(|line| !line.trim().starts_with("registry "))
                     .collect::<Vec<_>>()
                     .join("\n");
@@ -82,15 +84,21 @@ pub fn reset_mirror(tool: &str) -> Result<()> {
             if let Some(path) = home_config {
                 if path.exists() {
                     let content = std::fs::read_to_string(&path)?;
-                    let mut config_val: serde_json::Value = serde_json::from_str(&content)
-                        .unwrap_or(serde_json::json!({}));
+                    let mut config_val: serde_json::Value =
+                        serde_json::from_str(&content).unwrap_or(serde_json::json!({}));
                     if config_val.get("registry-mirrors").is_some() {
-                        config_val.as_object_mut().map(|m| m.remove("registry-mirrors"));
+                        config_val
+                            .as_object_mut()
+                            .map(|m| m.remove("registry-mirrors"));
                         if let Ok(new_content) = serde_json::to_string_pretty(&config_val) {
                             std::fs::write(&path, new_content)?;
                         }
                     }
-                    println!("{} 已从 {} 移除 registry-mirrors", "✅".green(), path.display());
+                    println!(
+                        "{} 已从 {} 移除 registry-mirrors",
+                        "✅".green(),
+                        path.display()
+                    );
                 } else {
                     println!("{} Docker 用户配置文件不存在", "ℹ".blue());
                 }
@@ -116,7 +124,9 @@ pub fn reset_mirror(tool: &str) -> Result<()> {
             if !var_names.is_empty() {
                 for var_name in var_names {
                     // SAFETY: 单线程上下文调用
-                    unsafe { std::env::remove_var(var_name); }
+                    unsafe {
+                        std::env::remove_var(var_name);
+                    }
                     crate::env::remove_from_shell_config(var_name)?;
                 }
                 println!("{} 已清除 {} 的环境变量", "✅".green(), tool);
@@ -161,11 +171,16 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
 
         let npmrc = dir.join(".npmrc");
-        std::fs::write(&npmrc, "registry=https://registry.npmmirror.com/\nother=value\n").unwrap();
+        std::fs::write(
+            &npmrc,
+            "registry=https://registry.npmmirror.com/\nother=value\n",
+        )
+        .unwrap();
 
         // 模拟 reset 逻辑
         let content = std::fs::read_to_string(&npmrc).unwrap();
-        let new_content: String = content.lines()
+        let new_content: String = content
+            .lines()
             .filter(|line| !line.starts_with("registry="))
             .collect::<Vec<_>>()
             .join("\n");
@@ -185,11 +200,16 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
 
         let yarnrc = dir.join(".yarnrc");
-        std::fs::write(&yarnrc, "registry \"https://registry.npmmirror.com/\"\nother-config true\n").unwrap();
+        std::fs::write(
+            &yarnrc,
+            "registry \"https://registry.npmmirror.com/\"\nother-config true\n",
+        )
+        .unwrap();
 
         // 模拟 reset 逻辑
         let content = std::fs::read_to_string(&yarnrc).unwrap();
-        let new_content: String = content.lines()
+        let new_content: String = content
+            .lines()
             .filter(|line| !line.trim().starts_with("registry "))
             .collect::<Vec<_>>()
             .join("\n");
@@ -210,10 +230,15 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
 
         let npmrc = dir.join(".npmrc");
-        std::fs::write(&npmrc, "registry=https://registry.npmmirror.com/\nstore-dir=.pnpm-store\n").unwrap();
+        std::fs::write(
+            &npmrc,
+            "registry=https://registry.npmmirror.com/\nstore-dir=.pnpm-store\n",
+        )
+        .unwrap();
 
         let content = std::fs::read_to_string(&npmrc).unwrap();
-        let new_content: String = content.lines()
+        let new_content: String = content
+            .lines()
             .filter(|line| !line.starts_with("registry="))
             .collect::<Vec<_>>()
             .join("\n");

@@ -11,8 +11,8 @@ pub mod profile;
 pub mod proxy;
 // utils.rs removed — unused dead code
 
-use std::path::PathBuf;
 use colored::Colorize;
+use std::path::PathBuf;
 
 /// 获取 home 目录
 pub fn home_dir() -> anyhow::Result<PathBuf> {
@@ -81,7 +81,10 @@ pub fn switch_profile(profile_name: &str) -> anyhow::Result<SwitchResult> {
     let config_path = config::config_path()?;
     cfg.save(&config_path)?;
 
-    Ok(SwitchResult { errors, manual_instructions })
+    Ok(SwitchResult {
+        errors,
+        manual_instructions,
+    })
 }
 
 /// 预览切换 profile 会产生的变更（dry-run）
@@ -92,14 +95,22 @@ pub fn preview_switch(profile_name: &str) -> anyhow::Result<()> {
     // 合并项目级配置（如果存在 .nz-switch.toml）
     let effective_profile = match local_config::load_local_config()? {
         Some(ref lc) => {
-            println!("  {} 检测到项目级配置 (.nz-switch.toml)，已合并", "📁".blue());
+            println!(
+                "  {} 检测到项目级配置 (.nz-switch.toml)，已合并",
+                "📁".blue()
+            );
             println!();
             local_config::merge_with_local(&profile, lc, &cfg)?
         }
         None => profile,
     };
 
-    println!("{}", format!("🔍 预览切换到 {} (dry-run)", effective_profile.display_name).cyan().bold());
+    println!(
+        "{}",
+        format!("🔍 预览切换到 {} (dry-run)", effective_profile.display_name)
+            .cyan()
+            .bold()
+    );
     println!();
 
     // 清理操作
@@ -152,7 +163,11 @@ pub fn preview_switch(profile_name: &str) -> anyhow::Result<()> {
         println!();
     }
 
-    println!("{} 使用 {} 来实际执行切换", "ℹ".blue(), format!("nz-switch switch {profile_name}").cyan());
+    println!(
+        "{} 使用 {} 来实际执行切换",
+        "ℹ".blue(),
+        format!("nz-switch switch {profile_name}").cyan()
+    );
 
     Ok(())
 }

@@ -13,11 +13,21 @@ pub fn pip_config_path() -> Result<PathBuf> {
     let home = crate::home_dir()?;
     let os = std::env::consts::OS;
     match os {
-        "macos" => Ok(home.join("Library").join("Application Support").join("pip").join("pip.conf")),
+        "macos" => Ok(home
+            .join("Library")
+            .join("Application Support")
+            .join("pip")
+            .join("pip.conf")),
         "windows" => {
-            let appdata = std::env::var("APPDATA")
-                .unwrap_or_else(|_| home.join("AppData").join("Roaming").to_string_lossy().to_string());
-            Ok(std::path::PathBuf::from(appdata).join("pip").join("pip.ini"))
+            let appdata = std::env::var("APPDATA").unwrap_or_else(|_| {
+                home.join("AppData")
+                    .join("Roaming")
+                    .to_string_lossy()
+                    .to_string()
+            });
+            Ok(std::path::PathBuf::from(appdata)
+                .join("pip")
+                .join("pip.ini"))
         }
         _ => Ok(home.join(".config").join("pip").join("pip.conf")),
     }
@@ -66,11 +76,16 @@ pub fn gradle_init_path() -> Result<PathBuf> {
 /// NuGet 配置文件路径（跨平台）
 pub fn nuget_config_path() -> Result<PathBuf> {
     if cfg!(target_os = "windows") {
-        let appdata = std::env::var("APPDATA")
-            .map_err(|_| anyhow::anyhow!("无法获取 APPDATA 环境变量"))?;
-        Ok(std::path::PathBuf::from(appdata).join("NuGet").join("NuGet.Config"))
+        let appdata =
+            std::env::var("APPDATA").map_err(|_| anyhow::anyhow!("无法获取 APPDATA 环境变量"))?;
+        Ok(std::path::PathBuf::from(appdata)
+            .join("NuGet")
+            .join("NuGet.Config"))
     } else {
-        Ok(crate::home_dir()?.join(".nuget").join("NuGet").join("NuGet.Config"))
+        Ok(crate::home_dir()?
+            .join(".nuget")
+            .join("NuGet")
+            .join("NuGet.Config"))
     }
 }
 
@@ -78,12 +93,28 @@ pub fn nuget_config_path() -> Result<PathBuf> {
 pub fn vscode_settings_path() -> Result<PathBuf> {
     let home = crate::home_dir()?;
     if cfg!(target_os = "macos") {
-        Ok(home.join("Library").join("Application Support").join("Code").join("User").join("settings.json"))
+        Ok(home
+            .join("Library")
+            .join("Application Support")
+            .join("Code")
+            .join("User")
+            .join("settings.json"))
     } else if cfg!(target_os = "windows") {
-        let appdata = std::env::var("APPDATA")
-            .unwrap_or_else(|_| home.join("AppData").join("Roaming").to_string_lossy().to_string());
-        Ok(std::path::PathBuf::from(appdata).join("Code").join("User").join("settings.json"))
+        let appdata = std::env::var("APPDATA").unwrap_or_else(|_| {
+            home.join("AppData")
+                .join("Roaming")
+                .to_string_lossy()
+                .to_string()
+        });
+        Ok(std::path::PathBuf::from(appdata)
+            .join("Code")
+            .join("User")
+            .join("settings.json"))
     } else {
-        Ok(home.join(".config").join("Code").join("User").join("settings.json"))
+        Ok(home
+            .join(".config")
+            .join("Code")
+            .join("User")
+            .join("settings.json"))
     }
 }

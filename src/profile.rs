@@ -37,12 +37,11 @@ pub struct Profile {
 pub fn resolve_profile(name: &str) -> Result<Profile> {
     let cfg = crate::config::AppConfig::load()?;
 
-    cfg.profiles
-        .get(name)
-        .cloned()
-        .with_context(|| format!(
+    cfg.profiles.get(name).cloned().with_context(|| {
+        format!(
             "未找到 profile '{}'. 可用的 profiles: {}",
             name,
             cfg.profiles.keys().cloned().collect::<Vec<_>>().join(", ")
-        ))
+        )
+    })
 }

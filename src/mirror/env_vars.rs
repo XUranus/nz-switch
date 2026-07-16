@@ -82,12 +82,18 @@ pub fn env_var_entries(tool: &str, source: &str) -> Result<Vec<(String, String)>
 /// 从镜像定义的 env_vars 字段查找环境变量映射
 fn lookup_env_vars_from_def(tool: &str, source: &str) -> Option<Vec<(String, String)>> {
     let def = config::find_mirror_def(tool)?;
-    let entry = def.mirrors.iter().find(|m| {
-        m.enabled && (m.name == source || m.url == source)
-    })?;
+    let entry = def
+        .mirrors
+        .iter()
+        .find(|m| m.enabled && (m.name == source || m.url == source))?;
     let env_vars = entry.env_vars.as_ref()?;
     if env_vars.is_empty() {
         return None;
     }
-    Some(env_vars.iter().map(|(k, v)| (k.clone(), v.clone())).collect())
+    Some(
+        env_vars
+            .iter()
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect(),
+    )
 }

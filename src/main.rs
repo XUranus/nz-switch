@@ -66,11 +66,7 @@ fn cmd_init(local: bool) -> anyhow::Result<()> {
 
     let config_path = config::config_path()?;
     if config_path.exists() {
-        println!(
-            "{} 配置文件已存在: {}",
-            "⚠".yellow(),
-            config_path.display()
-        );
+        println!("{} 配置文件已存在: {}", "⚠".yellow(), config_path.display());
         println!("如需重新初始化，请先删除配置文件。");
         return Ok(());
     }
@@ -110,14 +106,26 @@ fn cmd_switch(profile_name: &str, dry_run: bool) -> anyhow::Result<()> {
     }
 
     if result.errors.is_empty() {
-        println!("{} 已切换到 {} 环境", "✅".green(), profile.display_name.bold());
+        println!(
+            "{} 已切换到 {} 环境",
+            "✅".green(),
+            profile.display_name.bold()
+        );
     } else {
-        println!("{} 已切换到 {} 环境 (部分失败)", "⚠".yellow(), profile.display_name.bold());
+        println!(
+            "{} 已切换到 {} 环境 (部分失败)",
+            "⚠".yellow(),
+            profile.display_name.bold()
+        );
     }
 
     if !result.manual_instructions.is_empty() {
         println!();
-        println!("  {} {} 项操作需要手动执行:", "⚠".yellow(), result.manual_instructions.len());
+        println!(
+            "  {} {} 项操作需要手动执行:",
+            "⚠".yellow(),
+            result.manual_instructions.len()
+        );
         for instruction in &result.manual_instructions {
             for line in instruction.lines() {
                 println!("    {line}");
@@ -129,10 +137,7 @@ fn cmd_switch(profile_name: &str, dry_run: bool) -> anyhow::Result<()> {
     // 提示项目级配置已自动合并
     if local_config::load_local_config()?.is_some() {
         println!();
-        println!(
-            "  {} 项目级配置 (.nz-switch.toml) 已自动合并",
-            "📁".blue()
-        );
+        println!("  {} 项目级配置 (.nz-switch.toml) 已自动合并", "📁".blue());
     }
 
     Ok(())
@@ -246,9 +251,7 @@ fn cmd_config(action: nz_switch::cli::ConfigAction) -> anyhow::Result<()> {
             let path = config::config_path()?;
             let editor = std::env::var("EDITOR").unwrap_or_else(|_| "vi".to_string());
             println!("{} 打开配置文件: {}", "📝".cyan(), path.display());
-            std::process::Command::new(&editor)
-                .arg(&path)
-                .status()?;
+            std::process::Command::new(&editor).arg(&path).status()?;
         }
         nz_switch::cli::ConfigAction::Export { output } => {
             let cfg = config::AppConfig::load()?;
@@ -369,10 +372,23 @@ fn cmd_profile(action: ProfileAction) -> anyhow::Result<()> {
             let mut table = format::new_table(&["Profile", "名称", "类型", "状态"]);
             for (name, p) in &cfg.profiles {
                 let is_current = name == &cfg.current_profile;
-                let status = if is_current { "← 当前".green().to_string() } else { String::new() };
+                let status = if is_current {
+                    "← 当前".green().to_string()
+                } else {
+                    String::new()
+                };
                 let is_builtin = name == "cn" || name == "global";
-                let tag = if is_builtin { "内置".dimmed().to_string() } else { "自定义".blue().to_string() };
-                table.add_row(vec![name.bold().to_string(), p.display_name.clone(), tag, status]);
+                let tag = if is_builtin {
+                    "内置".dimmed().to_string()
+                } else {
+                    "自定义".blue().to_string()
+                };
+                table.add_row(vec![
+                    name.bold().to_string(),
+                    p.display_name.clone(),
+                    tag,
+                    status,
+                ]);
             }
             println!("{table}");
 
@@ -402,7 +418,10 @@ fn cmd_profile(action: ProfileAction) -> anyhow::Result<()> {
             cfg.save(&config_path)?;
 
             println!("{} Profile '{}' 已创建", "✅".green(), name.cyan());
-            println!("  运行 {} 开始配置", format!("nz-switch switch {name}").cyan());
+            println!(
+                "  运行 {} 开始配置",
+                format!("nz-switch switch {name}").cyan()
+            );
         }
         ProfileAction::Delete { name } => {
             if name == "cn" || name == "global" {
@@ -466,7 +485,9 @@ fn cmd_completions(shell: nz_switch::cli::Shell) -> anyhow::Result<()> {
         }
         nz_switch::cli::Shell::Elvish => {
             eprintln!("{} 安装到 elvish:", "💡".green());
-            eprintln!("  nz-switch completions elvish > ~/.config/elvish/completions/nz-switch.elv");
+            eprintln!(
+                "  nz-switch completions elvish > ~/.config/elvish/completions/nz-switch.elv"
+            );
         }
     }
 

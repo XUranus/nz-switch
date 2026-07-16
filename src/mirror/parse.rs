@@ -15,7 +15,11 @@ pub fn parse_ini_value(content: &str, section: &str, key: &str) -> Option<String
         if in_section && trimmed.starts_with(key) {
             // 确保 key 后面紧跟 = 或空白，避免 "index-url" 匹配 "index-url-suffix"
             let after_key = &trimmed[key.len()..];
-            if after_key.starts_with('=') || after_key.starts_with(' ') || after_key.starts_with('\t') || after_key.is_empty() {
+            if after_key.starts_with('=')
+                || after_key.starts_with(' ')
+                || after_key.starts_with('\t')
+                || after_key.is_empty()
+            {
                 let val = after_key.trim().strip_prefix('=').unwrap_or("").trim();
                 if !val.is_empty() {
                     return Some(val.to_string());
@@ -71,7 +75,9 @@ pub fn parse_apt_sources(path: &str) -> Vec<String> {
     let mut urls = Vec::new();
     for line in content.lines() {
         let trimmed = line.trim();
-        if trimmed.starts_with('#') { continue; }
+        if trimmed.starts_with('#') {
+            continue;
+        }
         if trimmed.starts_with("deb ") || trimmed.starts_with("deb\t") {
             let parts: Vec<&str> = trimmed.split_whitespace().collect();
             if parts.len() >= 2 {
@@ -115,7 +121,8 @@ mod tests {
     #[test]
     fn test_ini_key_prefix_no_match() {
         // "index-url-suffix" 不应匹配 "index-url"
-        let content = "[global]\nindex-url-suffix = https://example.com\nindex-url = https://real.com\n";
+        let content =
+            "[global]\nindex-url-suffix = https://example.com\nindex-url = https://real.com\n";
         assert_eq!(
             parse_ini_value(content, "global", "index-url"),
             Some("https://real.com".into())

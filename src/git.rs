@@ -27,11 +27,7 @@ pub fn apply_git_config(git: &Option<GitConfig>) -> Result<()> {
             // 设置 GitHub 镜像 (git url rewrite)
             if let Some(mirror) = &g.github_mirror {
                 let instead_of = format!("{mirror}https://github.com/");
-                run_git_config(
-                    "url.insteadOf",
-                    &instead_of,
-                    "https://github.com/",
-                )?;
+                run_git_config("url.insteadOf", &instead_of, "https://github.com/")?;
                 println!("    {} GitHub 镜像: {}", "✓".green(), mirror.cyan());
             }
 
@@ -66,7 +62,9 @@ fn run_git_config(key: &str, value: &str, instead_of: &str) -> Result<()> {
         cmd.arg(value);
     }
 
-    let output = cmd.output().map_err(|e| anyhow::anyhow!("git config 执行失败 (git 是否已安装?): {e}"))?;
+    let output = cmd
+        .output()
+        .map_err(|e| anyhow::anyhow!("git config 执行失败 (git 是否已安装?): {e}"))?;
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
         anyhow::bail!("git config 失败: {}", stderr.trim());
@@ -103,7 +101,7 @@ fn clear_github_mirror() -> Result<()> {
         "https://gh.ddlc.top/",
         "https://mirrors.tuna.tsinghua.edu.cn/",
         "https://mirrors.ustc.edu.cn/",
-        "https://ghproxy.com/",       // 已失效，保留用于清理旧配置
+        "https://ghproxy.com/",        // 已失效，保留用于清理旧配置
         "https://mirror.ghproxy.com/", // 已失效，保留用于清理旧配置
         "https://ghproxy.net/",        // 已失效，保留用于清理旧配置
         "https://hub.fastgit.xyz/",    // 已失效，保留用于清理旧配置

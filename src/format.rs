@@ -1,7 +1,7 @@
 //! CLI 表格输出工具模块
 
-use comfy_table::{Table, ContentArrangement, presets::UTF8_FULL, modifiers::UTF8_ROUND_CORNERS};
 use colored::Colorize;
+use comfy_table::{modifiers::UTF8_ROUND_CORNERS, presets::UTF8_FULL, ContentArrangement, Table};
 
 /// 创建带圆角 UTF-8 边框的表格，自动适配终端宽度
 pub fn new_table(headers: &[&str]) -> Table {

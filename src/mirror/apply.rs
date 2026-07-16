@@ -10,7 +10,6 @@ use super::env_vars;
 use super::paths;
 use super::types::ApplyResult;
 
-
 /// 应用镜像源配置，返回手动操作提示列表
 pub fn apply_mirrors(mirrors: &HashMap<String, String>) -> Result<Vec<String>> {
     let mut manual_instructions: Vec<String> = Vec::new();
@@ -28,7 +27,12 @@ pub fn apply_mirrors(mirrors: &HashMap<String, String>) -> Result<Vec<String>> {
                 println!("    {} {} → {}", "✓".green(), tool.cyan(), source);
             }
             Ok(ApplyResult::ManualRequired(instruction)) => {
-                println!("    {} {} → {} (需手动配置)", "⚠".yellow(), tool.cyan(), source);
+                println!(
+                    "    {} {} → {} (需手动配置)",
+                    "⚠".yellow(),
+                    tool.cyan(),
+                    source
+                );
                 manual_instructions.push(instruction);
             }
             Err(e) => {
@@ -45,7 +49,8 @@ pub fn apply_single_mirror(tool: &str, source: &str) -> Result<ApplyResult> {
     // 查找镜像定义以获取 config_type
     let mirror_def = config::find_mirror_def(tool);
 
-    let config_type = mirror_def.as_ref()
+    let config_type = mirror_def
+        .as_ref()
         .map(|d| d.config_type.as_str())
         .unwrap_or("manual");
 
@@ -64,10 +69,17 @@ pub fn set_mirror(tool: &str, source: &str) -> Result<()> {
     let tool_owned = tool.to_string();
     let source_owned = source.to_string();
     crate::config::mutate_current_profile(|profile| {
-        profile.mirrors.insert(tool_owned.clone(), source_owned.clone());
+        profile
+            .mirrors
+            .insert(tool_owned.clone(), source_owned.clone());
     })?;
 
-    println!("{} {} 镜像源已设置为: {}", "✅".green(), tool.cyan(), source);
+    println!(
+        "{} {} 镜像源已设置为: {}",
+        "✅".green(),
+        tool.cyan(),
+        source
+    );
     Ok(())
 }
 
@@ -93,7 +105,6 @@ fn apply_file_mirror(tool: &str, source: &str) -> Result<ApplyResult> {
     }
 }
 
-
 /// env 类型：解析预设 URL 并写入 shell 配置
 fn apply_env_mirror(tool: &str, source: &str) -> Result<ApplyResult> {
     let entries = env_vars::env_var_entries(tool, source)?;
@@ -118,8 +129,8 @@ fn apply_manual_mirror(tool: &str, source: &str) -> Result<ApplyResult> {
         "rubygems" => apply_rubygems_mirror(source),
         "composer" => apply_composer_mirror(source),
         "python" => {
-            let url = config::resolve_mirror_url("python", source)
-                .unwrap_or_else(|_| source.to_string());
+            let url =
+                config::resolve_mirror_url("python", source).unwrap_or_else(|_| source.to_string());
             let msg = format!("Python 安装包镜像: {url}，请从以上地址下载");
             println!("    {} {}", "ℹ".blue(), msg);
             Ok(ApplyResult::ManualRequired(msg))
@@ -163,12 +174,14 @@ fn apply_pip_mirror(url: &str) -> Result<ApplyResult> {
 
     // 提取 hostname 作为 trusted-host
     let trusted_host = index_url
-        .replace("https://", "").replace("http://", "")
-        .split('/').next().unwrap_or(&index_url).to_string();
+        .replace("https://", "")
+        .replace("http://", "")
+        .split('/')
+        .next()
+        .unwrap_or(&index_url)
+        .to_string();
 
-    let content = format!(
-        "[global]\nindex-url = {index_url}\ntrusted-host = {trusted_host}\n"
-    );
+    let content = format!("[global]\nindex-url = {index_url}\ntrusted-host = {trusted_host}\n");
 
     std::fs::write(&conf_path, content)?;
     info!("wrote pip config to {}", conf_path.display());
@@ -187,7 +200,8 @@ fn apply_npm_mirror(url: &str) -> Result<ApplyResult> {
     };
 
     let new_content = if content.contains("registry=") {
-        content.lines()
+        content
+            .lines()
             .map(|line| {
                 if line.starts_with("registry=") {
                     format!("registry={url}")
@@ -283,8 +297,14 @@ fn apply_docker_mirror(url: &str) -> Result<ApplyResult> {
         "sudo tee {} <<-'EOF'\n{{\"registry-mirrors\": [\"{}\"]}}\nEOF\nsudo systemctl restart docker",
         sys_path.display(), url
     );
-    println!("    {} Docker 镜像需要 sudo 权限，请手动执行:", "⚠".yellow());
-    println!("      {}", instruction.lines().collect::<Vec<_>>().join("\n      "));
+    println!(
+        "    {} Docker 镜像需要 sudo 权限，请手动执行:",
+        "⚠".yellow()
+    );
+    println!(
+        "      {}",
+        instruction.lines().collect::<Vec<_>>().join("\n      ")
+    );
     Ok(ApplyResult::ManualRequired(instruction))
 }
 
@@ -292,8 +312,8 @@ fn apply_docker_mirror(url: &str) -> Result<ApplyResult> {
 fn apply_conda_mirror(source: &str) -> Result<ApplyResult> {
     let condarc = paths::condarc_path()?;
 
-    let base_url = config::resolve_mirror_url("conda", source)
-        .unwrap_or_else(|_| source.to_string());
+    let base_url =
+        config::resolve_mirror_url("conda", source).unwrap_or_else(|_| source.to_string());
 
     // 如果已有 .condarc 且非我们写的，备份
     if condarc.exists() {
@@ -315,38 +335,48 @@ fn apply_conda_mirror(source: &str) -> Result<ApplyResult> {
     Ok(ApplyResult::Applied)
 }
 
-
 /// 应用 Chocolatey 镜像 (仅打印提示, Windows)
 fn apply_choco_mirror(source: &str) -> Result<ApplyResult> {
-    let mirror_url = config::resolve_mirror_url("choco", source)
-        .unwrap_or_else(|_| source.to_string());
+    let mirror_url =
+        config::resolve_mirror_url("choco", source).unwrap_or_else(|_| source.to_string());
 
-    println!("    {} Chocolatey 镜像需要管理员权限，请在 PowerShell 中执行:", "⚠".yellow());
+    println!(
+        "    {} Chocolatey 镜像需要管理员权限，请在 PowerShell 中执行:",
+        "⚠".yellow()
+    );
     println!("      choco source add -n=mirror -s='{mirror_url}' --priority=1");
     println!("      choco source remove -n=chocolatey");
 
-    Ok(ApplyResult::ManualRequired("Chocolatey 镜像需要管理员权限，请手动配置".into()))
+    Ok(ApplyResult::ManualRequired(
+        "Chocolatey 镜像需要管理员权限，请手动配置".into(),
+    ))
 }
 
 /// 应用 NuGet 镜像 (仅打印提示，Windows/.NET)
 fn apply_nuget_mirror(source: &str) -> Result<ApplyResult> {
-    let mirror_url = config::resolve_mirror_url("nuget", source)
-        .unwrap_or_else(|_| source.to_string());
+    let mirror_url =
+        config::resolve_mirror_url("nuget", source).unwrap_or_else(|_| source.to_string());
 
     println!("    {} NuGet 镜像请在 dotnet 项目中配置:", "⚠".yellow());
     println!("      dotnet nuget add source '{mirror_url}' -n mirror");
 
-    Ok(ApplyResult::ManualRequired("NuGet 镜像请在 dotnet 项目中配置".into()))
+    Ok(ApplyResult::ManualRequired(
+        "NuGet 镜像请在 dotnet 项目中配置".into(),
+    ))
 }
 
 /// 应用 Maven 镜像 (仅打印提示，Java)
 fn apply_maven_mirror(source: &str) -> Result<ApplyResult> {
-    let mirror_url = config::resolve_mirror_url("maven", source)
-        .unwrap_or_else(|_| source.to_string());
+    let mirror_url =
+        config::resolve_mirror_url("maven", source).unwrap_or_else(|_| source.to_string());
 
     let settings_path = paths::maven_settings_path()?;
 
-    println!("    {} Maven 镜像请在 {} 中配置:", "⚠".yellow(), settings_path.display());
+    println!(
+        "    {} Maven 镜像请在 {} 中配置:",
+        "⚠".yellow(),
+        settings_path.display()
+    );
     println!("      <mirrors>");
     println!("        <mirror>");
     println!("          <id>mirror</id>");
@@ -355,32 +385,37 @@ fn apply_maven_mirror(source: &str) -> Result<ApplyResult> {
     println!("        </mirror>");
     println!("      </mirrors>");
 
-    Ok(ApplyResult::ManualRequired("Maven 镜像请在 settings.xml 中配置".into()))
+    Ok(ApplyResult::ManualRequired(
+        "Maven 镜像请在 settings.xml 中配置".into(),
+    ))
 }
 
 /// 应用 RubyGems 镜像 (仅打印提示)
 fn apply_rubygems_mirror(source: &str) -> Result<ApplyResult> {
-    let mirror_url = config::resolve_mirror_url("rubygems", source)
-        .unwrap_or_else(|_| source.to_string());
+    let mirror_url =
+        config::resolve_mirror_url("rubygems", source).unwrap_or_else(|_| source.to_string());
 
     println!("    {} RubyGems 镜像请手动执行:", "⚠".yellow());
     println!("      gem sources --add {mirror_url}");
     println!("      gem sources --remove https://rubygems.org/");
 
-    Ok(ApplyResult::ManualRequired("RubyGems 镜像请手动执行 gem sources 命令".into()))
+    Ok(ApplyResult::ManualRequired(
+        "RubyGems 镜像请手动执行 gem sources 命令".into(),
+    ))
 }
 
 /// 应用 Composer 镜像 (仅打印提示，PHP)
 fn apply_composer_mirror(source: &str) -> Result<ApplyResult> {
-    let mirror_url = config::resolve_mirror_url("composer", source)
-        .unwrap_or_else(|_| source.to_string());
+    let mirror_url =
+        config::resolve_mirror_url("composer", source).unwrap_or_else(|_| source.to_string());
 
     println!("    {} Composer 镜像请手动执行:", "⚠".yellow());
     println!("      composer config -g repo.packagist composer {mirror_url}");
 
-    Ok(ApplyResult::ManualRequired("Composer 镜像请手动执行 composer config 命令".into()))
+    Ok(ApplyResult::ManualRequired(
+        "Composer 镜像请手动执行 composer config 命令".into(),
+    ))
 }
-
 
 /// 应用 yarn 镜像
 fn apply_yarn_mirror(url: &str) -> Result<ApplyResult> {
@@ -392,7 +427,8 @@ fn apply_yarn_mirror(url: &str) -> Result<ApplyResult> {
         // 保留其他配置，只替换 registry 行
         let content = std::fs::read_to_string(&yarnrc)?;
         let mut found = false;
-        let new_content: String = content.lines()
+        let new_content: String = content
+            .lines()
             .map(|line| {
                 if line.trim().starts_with("registry ") {
                     found = true;
@@ -408,7 +444,9 @@ fn apply_yarn_mirror(url: &str) -> Result<ApplyResult> {
         } else {
             // 没有 registry 行，追加
             let mut c = new_content;
-            if !c.ends_with('\n') { c.push('\n'); }
+            if !c.ends_with('\n') {
+                c.push('\n');
+            }
             c.push_str(&format!("{new_line}\n"));
             std::fs::write(&yarnrc, c)?;
         }
@@ -426,12 +464,11 @@ fn apply_pnpm_mirror(url: &str) -> Result<ApplyResult> {
     apply_npm_mirror(url)
 }
 
-
 /// 应用 Gradle 镜像 (写 init.gradle，使用 Maven 仓库镜像)
 fn apply_gradle_mirror(source: &str) -> Result<ApplyResult> {
     // init.gradle 配置的是 Maven 仓库镜像（用于下载依赖）
-    let maven_url = config::resolve_mirror_url("gradle", source)
-        .unwrap_or_else(|_| source.to_string());
+    let maven_url =
+        config::resolve_mirror_url("gradle", source).unwrap_or_else(|_| source.to_string());
 
     let init_path = paths::gradle_init_path()?;
 
@@ -461,28 +498,34 @@ fn apply_gradle_mirror(source: &str) -> Result<ApplyResult> {
 
 /// 应用 CocoaPods 镜像 (仅打印提示)
 fn apply_cocoapods_mirror(source: &str) -> Result<ApplyResult> {
-    let mirror_url = config::resolve_mirror_url("cocoapods", source)
-        .unwrap_or_else(|_| source.to_string());
+    let mirror_url =
+        config::resolve_mirror_url("cocoapods", source).unwrap_or_else(|_| source.to_string());
 
     println!("    {} CocoaPods 镜像请手动执行:", "⚠".yellow());
     println!("      pod repo remove master");
     println!("      pod repo add master {mirror_url}");
 
-    Ok(ApplyResult::ManualRequired("CocoaPods 镜像请手动执行 pod repo 命令".into()))
+    Ok(ApplyResult::ManualRequired(
+        "CocoaPods 镜像请手动执行 pod repo 命令".into(),
+    ))
 }
-
 
 /// 应用 VS Code 扩展市场镜像 (仅打印提示)
 fn apply_vscode_mirror(source: &str) -> Result<ApplyResult> {
-    let mirror_url = config::resolve_mirror_url("vscode", source)
-        .unwrap_or_else(|_| source.to_string());
+    let mirror_url =
+        config::resolve_mirror_url("vscode", source).unwrap_or_else(|_| source.to_string());
 
-    println!("    {} VS Code 扩展市场镜像请在 settings.json 中配置:", "⚠".yellow());
+    println!(
+        "    {} VS Code 扩展市场镜像请在 settings.json 中配置:",
+        "⚠".yellow()
+    );
     println!("      \"extensions.gallery\": {{");
     println!("        \"serviceUrl\": \"{mirror_url}\"");
     println!("      }}");
 
-    Ok(ApplyResult::ManualRequired("VS Code 扩展市场镜像请在 settings.json 中配置".into()))
+    Ok(ApplyResult::ManualRequired(
+        "VS Code 扩展市场镜像请在 settings.json 中配置".into(),
+    ))
 }
 
 /// 应用 Android Google Maven 镜像 (仅打印提示)
@@ -493,41 +536,57 @@ fn apply_android_maven_mirror(source: &str) -> Result<ApplyResult> {
             "https://maven.aliyun.com/repository/gradle-plugin",
         ),
         _ => {
-            println!("    {} 暂不支持 Android Maven 镜像源: {}", "⚠".yellow(), source);
+            println!(
+                "    {} 暂不支持 Android Maven 镜像源: {}",
+                "⚠".yellow(),
+                source
+            );
             return Ok(ApplyResult::Applied);
         }
     };
 
-    println!("    {} Android Maven 镜像请在 build.gradle 中配置:", "⚠".yellow());
+    println!(
+        "    {} Android Maven 镜像请在 build.gradle 中配置:",
+        "⚠".yellow()
+    );
     println!("      repositories {{");
     println!("        maven {{ url '{google_url}' }}");
     println!("        maven {{ url '{gradle_url}' }}");
     println!("      }}");
 
-    Ok(ApplyResult::ManualRequired("Android Maven 镜像请在 build.gradle 中配置".into()))
+    Ok(ApplyResult::ManualRequired(
+        "Android Maven 镜像请在 build.gradle 中配置".into(),
+    ))
 }
 
 /// 应用 Android Gradle Wrapper 镜像 (仅打印提示)
 fn apply_android_gradle_mirror(source: &str) -> Result<ApplyResult> {
-    let mirror_url = config::resolve_mirror_url("android-gradle", source)
-        .unwrap_or_else(|_| source.to_string());
+    let mirror_url =
+        config::resolve_mirror_url("android-gradle", source).unwrap_or_else(|_| source.to_string());
 
-    println!("    {} Gradle Wrapper 镜像请在 gradle-wrapper.properties 中配置:", "⚠".yellow());
+    println!(
+        "    {} Gradle Wrapper 镜像请在 gradle-wrapper.properties 中配置:",
+        "⚠".yellow()
+    );
     println!("      distributionUrl={mirror_url}gradle-X-all.zip");
 
-    Ok(ApplyResult::ManualRequired("Gradle Wrapper 镜像请在 gradle-wrapper.properties 中配置".into()))
+    Ok(ApplyResult::ManualRequired(
+        "Gradle Wrapper 镜像请在 gradle-wrapper.properties 中配置".into(),
+    ))
 }
 
 /// 应用 Swift Package Manager 镜像 (仅打印提示)
 fn apply_swift_mirror(source: &str) -> Result<ApplyResult> {
-    let mirror_url = config::resolve_mirror_url("swift", source)
-        .unwrap_or_else(|_| source.to_string());
+    let mirror_url =
+        config::resolve_mirror_url("swift", source).unwrap_or_else(|_| source.to_string());
 
     println!("    {} Swift Package Manager 镜像:", "⚠".yellow());
     println!("      请使用代理访问 github.com 依赖，或使用国内 Git 服务镜像");
     println!("      参考: {mirror_url}");
 
-    Ok(ApplyResult::ManualRequired(format!("Swift 镜像需要手动配置，请参考: {mirror_url}")))
+    Ok(ApplyResult::ManualRequired(format!(
+        "Swift 镜像需要手动配置，请参考: {mirror_url}"
+    )))
 }
 
 #[cfg(test)]
@@ -554,7 +613,11 @@ mod tests {
     fn test_resolve_mirror_url_unknown() {
         // 未知预设名应返回错误
         let result = config::resolve_mirror_url("pip", "nonexistent-preset-xyz");
-        assert!(result.is_err(), "expected error for unknown preset, got: {:?}", result);
+        assert!(
+            result.is_err(),
+            "expected error for unknown preset, got: {:?}",
+            result
+        );
     }
 
     #[test]

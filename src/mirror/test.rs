@@ -9,7 +9,7 @@ use tokio::sync::Semaphore;
 use tokio::time::timeout;
 
 use super::config;
-use super::types::{MirrorLatency, MirrorTestResult, MirrorSingleResult};
+use super::types::{MirrorLatency, MirrorSingleResult, MirrorTestResult};
 use crate::format;
 
 // ─── 常量 ──────────────────────────────────────────────────────────
@@ -35,7 +35,9 @@ fn collect_tasks(tool_filter: Option<&str>) -> Vec<(String, String, String)> {
     let mut tasks = Vec::new();
     for (tool, mirrors) in &all {
         if let Some(f) = tool_filter {
-            if f != tool.as_str() { continue; }
+            if f != tool.as_str() {
+                continue;
+            }
         }
         for (name, url) in mirrors {
             tasks.push((tool.clone(), name.clone(), url.clone()));
@@ -58,7 +60,9 @@ async fn test_mirrors_async(tool_filter: Option<&str>) -> Result<()> {
 
     for (tool, mirrors) in &all {
         if let Some(f) = tool_filter {
-            if f != tool.as_str() { continue; }
+            if f != tool.as_str() {
+                continue;
+            }
         }
 
         let mut table = format::new_table(&["状态", "镜像源", "延迟", "地址"]);
@@ -80,7 +84,8 @@ async fn test_mirrors_async(tool_filter: Option<&str>) -> Result<()> {
         }
 
         // 推荐最快
-        let fastest = results.iter()
+        let fastest = results
+            .iter()
             .filter_map(|(name, url, d)| d.map(|dur| (*name, *url, dur)))
             .min_by_key(|(_, _, d)| *d);
 
@@ -142,12 +147,19 @@ async fn test_mirrors_concurrent_async(tool_filter: Option<&str>) -> Vec<MirrorT
     let mut results: Vec<MirrorTestResult> = Vec::new();
     for (tool, _mirrors) in &all {
         if let Some(f) = tool_filter {
-            if f != tool.as_str() { continue; }
+            if f != tool.as_str() {
+                continue;
+            }
         }
         if let Some(mut latencies) = raw.remove(tool) {
             latencies.sort_by_key(|l| l.latency_ms.unwrap_or(u64::MAX));
-            let recommended = latencies.first()
-                .and_then(|l| if l.latency_ms.is_some() { Some(l.name.clone()) } else { None });
+            let recommended = latencies.first().and_then(|l| {
+                if l.latency_ms.is_some() {
+                    Some(l.name.clone())
+                } else {
+                    None
+                }
+            });
             results.push(MirrorTestResult {
                 tool: tool.clone(),
                 results: latencies,
@@ -184,12 +196,14 @@ where
         tokio::spawn(async move {
             let _permit = sem.acquire().await.unwrap();
             let latency = ping_url_tcp(&url).await;
-            let _ = tx.send(MirrorSingleResult {
-                tool,
-                name,
-                url,
-                latency_ms: latency.map(|d| d.as_millis() as u64),
-            }).await;
+            let _ = tx
+                .send(MirrorSingleResult {
+                    tool,
+                    name,
+                    url,
+                    latency_ms: latency.map(|d| d.as_millis() as u64),
+                })
+                .await;
         });
     }
     drop(tx);

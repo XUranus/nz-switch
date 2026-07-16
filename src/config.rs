@@ -66,8 +66,7 @@ impl AppConfig {
                 .with_context(|| format!("创建配置目录失败: {}", parent.display()))?;
         }
 
-        let content = toml::to_string_pretty(self)
-            .context("序列化配置失败")?;
+        let content = toml::to_string_pretty(self).context("序列化配置失败")?;
 
         std::fs::write(path, content)
             .with_context(|| format!("写入配置文件失败: {}", path.display()))?;
@@ -78,8 +77,7 @@ impl AppConfig {
 
 /// 获取配置文件路径 (~/.config/nz-switch/config.toml)
 pub fn config_path() -> Result<PathBuf> {
-    let config_dir = dirs::config_dir()
-        .context("无法获取用户配置目录")?;
+    let config_dir = dirs::config_dir().context("无法获取用户配置目录")?;
     Ok(config_dir.join("nz-switch").join("config.toml"))
 }
 
@@ -92,7 +90,9 @@ where
     let config_path = config_path()?;
     let mut cfg = AppConfig::load()?;
     let profile_name = cfg.current_profile.clone();
-    let profile = cfg.profiles.get_mut(&profile_name)
+    let profile = cfg
+        .profiles
+        .get_mut(&profile_name)
         .ok_or_else(|| anyhow::anyhow!("当前 profile '{profile_name}' 不存在"))?;
     f(profile);
     cfg.save(&config_path)?;
@@ -201,7 +201,10 @@ mod tests {
         let git = cn.git.as_ref().expect("cn profile should have git config");
         assert!(git.github_mirror.is_some());
         let mirror = git.github_mirror.as_ref().unwrap();
-        assert!(mirror.starts_with("https://"), "github_mirror should use HTTPS");
+        assert!(
+            mirror.starts_with("https://"),
+            "github_mirror should use HTTPS"
+        );
         assert!(mirror.ends_with('/'), "github_mirror should end with /");
     }
 

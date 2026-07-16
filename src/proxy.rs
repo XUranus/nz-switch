@@ -1,9 +1,9 @@
+use crate::format;
 use anyhow::Result;
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tracing::info;
-use crate::format;
 
 /// 代理配置
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -80,7 +80,10 @@ pub fn test_proxy() -> Result<()> {
         ("Google", "https://www.google.com"),
         ("Docker Hub", "https://hub.docker.com"),
         ("PyPI (清华)", "https://pypi.tuna.tsinghua.edu.cn"),
-        ("crates.io (ustc)", "https://mirrors.ustc.edu.cn/crates.io-index/"),
+        (
+            "crates.io (ustc)",
+            "https://mirrors.ustc.edu.cn/crates.io-index/",
+        ),
         ("npmmirror", "https://registry.npmmirror.com"),
     ];
 
@@ -120,8 +123,15 @@ pub fn test_proxy() -> Result<()> {
     let mut env_table = format::new_table(&["变量", "值"]);
     for key in &["HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"] {
         match std::env::var(key) {
-            Ok(val) => { env_table.add_row(vec![key.cyan().to_string(), val]); }
-            Err(_) => { env_table.add_row(vec![key.dimmed().to_string(), "(未设置)".dimmed().to_string()]); }
+            Ok(val) => {
+                env_table.add_row(vec![key.cyan().to_string(), val]);
+            }
+            Err(_) => {
+                env_table.add_row(vec![
+                    key.dimmed().to_string(),
+                    "(未设置)".dimmed().to_string(),
+                ]);
+            }
         }
     }
     println!("{env_table}");
@@ -149,7 +159,9 @@ pub fn apply_proxy(proxy: &Option<ProxyConfig>) -> Result<()> {
 
             for (key, value) in &env_vars {
                 // SAFETY: 单线程上下文调用
-                unsafe { std::env::set_var(key, *value); }
+                unsafe {
+                    std::env::set_var(key, *value);
+                }
                 info!("set proxy env {}={}", key, value);
                 println!("    {} {} = {}", "✓".green(), key.cyan(), value);
                 // 持久化到 shell 配置
@@ -160,7 +172,9 @@ pub fn apply_proxy(proxy: &Option<ProxyConfig>) -> Result<()> {
 
             let no_proxy = "localhost,127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16";
             // SAFETY: 单线程上下文调用
-            unsafe { std::env::set_var("NO_PROXY", no_proxy); }
+            unsafe {
+                std::env::set_var("NO_PROXY", no_proxy);
+            }
             println!("    {} NO_PROXY = {}", "✓".green(), no_proxy);
             if let Err(e) = crate::env::write_single_to_shell("NO_PROXY", no_proxy) {
                 info!("failed to persist NO_PROXY to shell config: {}", e);
@@ -177,10 +191,20 @@ pub fn apply_proxy(proxy: &Option<ProxyConfig>) -> Result<()> {
 
 /// 清除代理环境变量（同时从 shell 配置中移除）
 fn clear_proxy_env() {
-    for key in &["HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY",
-                 "http_proxy", "https_proxy", "all_proxy", "no_proxy"] {
+    for key in &[
+        "HTTP_PROXY",
+        "HTTPS_PROXY",
+        "ALL_PROXY",
+        "NO_PROXY",
+        "http_proxy",
+        "https_proxy",
+        "all_proxy",
+        "no_proxy",
+    ] {
         // SAFETY: 单线程上下文调用
-        unsafe { std::env::remove_var(key); }
+        unsafe {
+            std::env::remove_var(key);
+        }
         // 从 shell 配置中移除（忽略错误）
         let _ = crate::env::remove_from_shell_config(key);
     }

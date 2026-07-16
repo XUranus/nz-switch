@@ -1,9 +1,9 @@
+use crate::format;
 use anyhow::Result;
+use colored::Colorize;
 use std::collections::HashMap;
 use std::path::PathBuf;
-use colored::Colorize;
 use tracing::info;
-use crate::format;
 
 // ─── Shell 辅助函数 ──────────────────────────────────────────────────
 
@@ -24,11 +24,15 @@ fn shell_rc_path() -> Option<PathBuf> {
         // PowerShell 7+ (pwsh): ~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1
         // Windows PowerShell 5.x: ~/Documents/WindowsPowerShell/Microsoft.PowerShell_profile.ps1
         if let Some(docs) = dirs::document_dir() {
-            let pwsh_profile = docs.join("PowerShell").join("Microsoft.PowerShell_profile.ps1");
+            let pwsh_profile = docs
+                .join("PowerShell")
+                .join("Microsoft.PowerShell_profile.ps1");
             if pwsh_profile.exists() {
                 return Some(pwsh_profile);
             }
-            let win_ps_profile = docs.join("WindowsPowerShell").join("Microsoft.PowerShell_profile.ps1");
+            let win_ps_profile = docs
+                .join("WindowsPowerShell")
+                .join("Microsoft.PowerShell_profile.ps1");
             if win_ps_profile.exists() {
                 return Some(win_ps_profile);
             }
@@ -53,7 +57,9 @@ fn shell_rc_path() -> Option<PathBuf> {
                     Some(home.join(".bashrc"))
                 }
             }
-            Some("fish") => dirs::home_dir().map(|h| h.join(".config").join("fish").join("config.fish")),
+            Some("fish") => {
+                dirs::home_dir().map(|h| h.join(".config").join("fish").join("config.fish"))
+            }
             _ => {
                 // 回退到 .profile
                 dirs::home_dir().map(|h| h.join(".profile"))
@@ -115,7 +121,9 @@ pub fn set_env(key: &str, value: &str) -> Result<()> {
     let mut cfg = crate::config::AppConfig::load()?;
     let profile_name = cfg.current_profile.clone();
 
-    let profile = cfg.profiles.get_mut(&profile_name)
+    let profile = cfg
+        .profiles
+        .get_mut(&profile_name)
         .ok_or_else(|| anyhow::anyhow!("当前 profile '{profile_name}' 不存在"))?;
     profile.env.insert(key.to_string(), value.to_string());
 
@@ -131,9 +139,16 @@ pub fn set_env(key: &str, value: &str) -> Result<()> {
 
     // SAFETY: nz-switch CLI 和 Tauri 命令在单线程上下文中调用此函数，
     // 不会与其他线程并发读写环境变量。
-    unsafe { std::env::set_var(key, value); }
+    unsafe {
+        std::env::set_var(key, value);
+    }
 
-    println!("{} 环境变量已设置: {} = {}", "✅".green(), key.cyan(), value);
+    println!(
+        "{} 环境变量已设置: {} = {}",
+        "✅".green(),
+        key.cyan(),
+        value
+    );
 
     Ok(())
 }
@@ -149,13 +164,19 @@ pub fn unset_env(key: &str) -> Result<()> {
             cfg.save(&config_path)?;
 
             // SAFETY: 单线程上下文调用
-            unsafe { std::env::remove_var(key); }
+            unsafe {
+                std::env::remove_var(key);
+            }
 
             remove_from_shell_config(key)?;
 
             println!("{} 环境变量已删除: {}", "✅".green(), key.cyan());
         } else {
-            println!("{} 环境变量 {} 不存在于当前 profile", "⚠".yellow(), key.cyan());
+            println!(
+                "{} 环境变量 {} 不存在于当前 profile",
+                "⚠".yellow(),
+                key.cyan()
+            );
         }
     }
 
@@ -168,11 +189,16 @@ pub fn show_proxy_env() -> Result<()> {
     println!();
 
     let proxy_keys = [
-        "HTTP_PROXY", "http_proxy",
-        "HTTPS_PROXY", "https_proxy",
-        "ALL_PROXY", "all_proxy",
-        "NO_PROXY", "no_proxy",
-        "SOCKS_PROXY", "socks_proxy",
+        "HTTP_PROXY",
+        "http_proxy",
+        "HTTPS_PROXY",
+        "https_proxy",
+        "ALL_PROXY",
+        "all_proxy",
+        "NO_PROXY",
+        "no_proxy",
+        "SOCKS_PROXY",
+        "socks_proxy",
     ];
 
     let mut found = false;
@@ -202,7 +228,9 @@ pub fn apply_env_vars(env_vars: &HashMap<String, String>) -> Result<()> {
 
     for (key, value) in env_vars {
         // SAFETY: 单线程上下文调用
-        unsafe { std::env::set_var(key, value); }
+        unsafe {
+            std::env::set_var(key, value);
+        }
         info!("set env {}={}", key, value);
         println!("    {} {} = {}", "✓".green(), key.cyan(), value);
     }
@@ -227,7 +255,8 @@ pub fn clear_shell_env_block() -> Result<()> {
     let marker_start = "# >>> nz-switch env start >>>";
     let marker_end = "# <<< nz-switch env end <<<";
 
-    if let (Some(start_idx), Some(end_idx)) = (content.find(marker_start), content.find(marker_end)) {
+    if let (Some(start_idx), Some(end_idx)) = (content.find(marker_start), content.find(marker_end))
+    {
         let end_idx = end_idx + marker_end.len();
         let mut result = content[..start_idx].to_string();
         if end_idx < content.len() {
@@ -237,7 +266,10 @@ pub fn clear_shell_env_block() -> Result<()> {
             result.pop();
         }
         std::fs::write(&rc_path, result)?;
-        println!("    {} 已从 shell 配置中移除 nz-switch 环境变量块", "✓".green());
+        println!(
+            "    {} 已从 shell 配置中移除 nz-switch 环境变量块",
+            "✓".green()
+        );
     }
 
     Ok(())
@@ -248,13 +280,20 @@ fn write_to_shell_config(env_vars: &HashMap<String, String>) -> Result<()> {
     let rc_path = match shell_rc_path() {
         Some(p) => p,
         None => {
-            println!("    {} 无法检测 shell 类型，跳过写入 shell 配置", "⚠".yellow());
+            println!(
+                "    {} 无法检测 shell 类型，跳过写入 shell 配置",
+                "⚠".yellow()
+            );
             return Ok(());
         }
     };
 
     if !rc_path.exists() {
-        println!("    {} Shell 配置文件不存在: {}, 跳过写入", "⚠".yellow(), rc_path.display());
+        println!(
+            "    {} Shell 配置文件不存在: {}, 跳过写入",
+            "⚠".yellow(),
+            rc_path.display()
+        );
         return Ok(());
     }
 
@@ -272,12 +311,17 @@ fn write_to_shell_config(env_vars: &HashMap<String, String>) -> Result<()> {
         }
         // C2 fix: 防止 shell 注入 — 单引号转义 + 剥离换行符
         // 单引号内用 '\'' 转义；换行符在单引号字符串中会终止 export 语句，必须移除
-        let sanitized = value.replace('\'', "'\\''").replace('\n', " ").replace('\r', "");
+        let sanitized = value
+            .replace('\'', "'\\''")
+            .replace('\n', " ")
+            .replace('\r', "");
         block.push_str(&format!("export {key}='{sanitized}'\n"));
     }
     block.push_str(&format!("{marker_end}\n"));
 
-    let new_content = if let (Some(start_idx), Some(end_idx)) = (content.find(marker_start), content.find(marker_end)) {
+    let new_content = if let (Some(start_idx), Some(end_idx)) =
+        (content.find(marker_start), content.find(marker_end))
+    {
         let end_idx = end_idx + marker_end.len();
         let mut result = content[..start_idx].to_string();
         result.push_str(&block);
@@ -321,7 +365,10 @@ pub fn write_single_to_shell(key: &str, value: &str) -> Result<()> {
         return Ok(());
     }
 
-    let sanitized = value.replace('\'', "'\\''").replace('\n', " ").replace('\r', "");
+    let sanitized = value
+        .replace('\'', "'\\''")
+        .replace('\n', " ")
+        .replace('\r', "");
     let export_line = format!("export {key}='{sanitized}'");
 
     let content = std::fs::read_to_string(&rc_path)?;
@@ -330,7 +377,8 @@ pub fn write_single_to_shell(key: &str, value: &str) -> Result<()> {
     let export_eq_prefix = format!("export {key}=");
 
     let mut found = false;
-    let new_content: String = content.lines()
+    let new_content: String = content
+        .lines()
         .map(|line| {
             let trimmed = line.trim();
             if trimmed.starts_with(&export_dquote)
@@ -383,7 +431,8 @@ pub fn remove_from_shell_config(key: &str) -> Result<()> {
     let export_squote = format!("export {key}='");
     let export_eq = format!("export {key}=");
 
-    let new_content: String = content.lines()
+    let new_content: String = content
+        .lines()
         .filter(|line| {
             let trimmed = line.trim();
             !trimmed.starts_with(&export_dquote)
@@ -433,8 +482,11 @@ mod tests {
         if let Some(p) = path {
             let s = p.to_string_lossy();
             assert!(
-                s.contains(".zshrc") || s.contains(".bashrc") || s.contains(".bash_profile")
-                    || s.contains("config.fish") || s.contains(".profile"),
+                s.contains(".zshrc")
+                    || s.contains(".bashrc")
+                    || s.contains(".bash_profile")
+                    || s.contains("config.fish")
+                    || s.contains(".profile"),
                 "unexpected rc path: {}",
                 s
             );

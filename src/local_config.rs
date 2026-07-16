@@ -36,7 +36,8 @@ pub fn find_local_config() -> Option<PathBuf> {
 
 fn find_config_in_or_above(dir: &Path) -> Option<PathBuf> {
     let mut current = dir.to_path_buf();
-    for _ in 0..32 { // 最多向上查找 32 层
+    for _ in 0..32 {
+        // 最多向上查找 32 层
         let config_path = current.join(LOCAL_CONFIG_FILENAME);
         if config_path.exists() {
             return Some(config_path);
@@ -89,14 +90,13 @@ pub fn merge_with_local(
 ) -> Result<Profile> {
     // 如果指定了 base_profile，从配置中查找
     let mut merged = if let Some(base_name) = &local.base_profile {
-        cfg.profiles
-            .get(base_name)
-            .cloned()
-            .ok_or_else(|| anyhow::anyhow!(
+        cfg.profiles.get(base_name).cloned().ok_or_else(|| {
+            anyhow::anyhow!(
                 "项目配置指定的 base_profile '{}' 不存在，可用: {}",
                 base_name,
                 cfg.profiles.keys().cloned().collect::<Vec<_>>().join(", ")
-            ))?
+            )
+        })?
     } else {
         profile.clone()
     };
@@ -166,7 +166,9 @@ mod tests {
         profile.env.insert("KEY1".to_string(), "value1".to_string());
 
         let mut local = LocalConfig::default();
-        local.env.insert("KEY1".to_string(), "overridden".to_string());
+        local
+            .env
+            .insert("KEY1".to_string(), "overridden".to_string());
         local.env.insert("KEY2".to_string(), "new".to_string());
 
         let cfg = crate::config::AppConfig::default();

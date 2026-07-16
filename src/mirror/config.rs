@@ -27,8 +27,8 @@ pub struct MirrorDef {
     pub description: String,
     pub config_type: String, // "file", "env", "manual"
     pub config_path: Option<String>,
-    pub os: Vec<String>,     // 空 = 所有平台
-    pub arch: Vec<String>,   // 空 = 所有架构
+    pub os: Vec<String>,   // 空 = 所有平台
+    pub arch: Vec<String>, // 空 = 所有架构
     pub mirrors: Vec<MirrorEntry>,
 }
 
@@ -112,25 +112,55 @@ const PLATFORM_LINUX_UBUNTU_ARM: &str = include_platform!("linux.ubuntu.aarch64.
 
 fn embedded_mirror_jsons() -> Vec<&'static str> {
     vec![
-        MIRROR_PIP, MIRROR_NPM, MIRROR_YARN, MIRROR_PNPM, MIRROR_BUN, MIRROR_DENO,
-        MIRROR_CARGO, MIRROR_GO, MIRROR_DOCKER, MIRROR_K8S_GCR, MIRROR_K8S_REGISTRY,
-        MIRROR_GHCR, MIRROR_QUAY, MIRROR_CONDA, MIRROR_BREW, MIRROR_APT,
-        MIRROR_CHOCO, MIRROR_NUGET, MIRROR_MAVEN, MIRROR_GRADLE, MIRROR_RUBYGEMS,
-        MIRROR_COMPOSER, MIRROR_PUB, MIRROR_COCOAPODS, MIRROR_HUGGINGFACE, MIRROR_NODEJS,
-        MIRROR_PYTHON, MIRROR_RUSTUP, MIRROR_VSCODE, MIRROR_ANDROID_MAVEN,
-        MIRROR_ANDROID_GRADLE, MIRROR_SWIFT,
+        MIRROR_PIP,
+        MIRROR_NPM,
+        MIRROR_YARN,
+        MIRROR_PNPM,
+        MIRROR_BUN,
+        MIRROR_DENO,
+        MIRROR_CARGO,
+        MIRROR_GO,
+        MIRROR_DOCKER,
+        MIRROR_K8S_GCR,
+        MIRROR_K8S_REGISTRY,
+        MIRROR_GHCR,
+        MIRROR_QUAY,
+        MIRROR_CONDA,
+        MIRROR_BREW,
+        MIRROR_APT,
+        MIRROR_CHOCO,
+        MIRROR_NUGET,
+        MIRROR_MAVEN,
+        MIRROR_GRADLE,
+        MIRROR_RUBYGEMS,
+        MIRROR_COMPOSER,
+        MIRROR_PUB,
+        MIRROR_COCOAPODS,
+        MIRROR_HUGGINGFACE,
+        MIRROR_NODEJS,
+        MIRROR_PYTHON,
+        MIRROR_RUSTUP,
+        MIRROR_VSCODE,
+        MIRROR_ANDROID_MAVEN,
+        MIRROR_ANDROID_GRADLE,
+        MIRROR_SWIFT,
     ]
 }
 
 fn embedded_platform_jsons() -> Vec<&'static str> {
     vec![
         // 通用平台
-        PLATFORM_LINUX_X86, PLATFORM_LINUX_ARM,
-        PLATFORM_MACOS_X86, PLATFORM_MACOS_ARM,
-        PLATFORM_WINDOWS_X86, PLATFORM_WINDOWS_ARM,
+        PLATFORM_LINUX_X86,
+        PLATFORM_LINUX_ARM,
+        PLATFORM_MACOS_X86,
+        PLATFORM_MACOS_ARM,
+        PLATFORM_WINDOWS_X86,
+        PLATFORM_WINDOWS_ARM,
         // 发行版专属
-        PLATFORM_LINUX_ARCHLINUX_X86, PLATFORM_LINUX_ARCHLINUX_ARM,
-        PLATFORM_LINUX_UBUNTU_X86, PLATFORM_LINUX_UBUNTU_ARM,
+        PLATFORM_LINUX_ARCHLINUX_X86,
+        PLATFORM_LINUX_ARCHLINUX_ARM,
+        PLATFORM_LINUX_UBUNTU_X86,
+        PLATFORM_LINUX_UBUNTU_ARM,
     ]
 }
 
@@ -212,7 +242,9 @@ pub fn load_mirror_defs() -> &'static Vec<MirrorDef> {
                         if path.extension().is_some_and(|e| e == "json") {
                             if let Ok(content) = std::fs::read_to_string(&path) {
                                 if let Ok(def) = serde_json::from_str::<MirrorDef>(&content) {
-                                    if let Some(existing) = defs.iter_mut().find(|d| d.tool == def.tool) {
+                                    if let Some(existing) =
+                                        defs.iter_mut().find(|d| d.tool == def.tool)
+                                    {
                                         *existing = def;
                                     } else {
                                         defs.push(def);
@@ -235,36 +267,36 @@ static PLATFORM_DEF_CACHE: OnceLock<PlatformDef> = OnceLock::new();
 /// 加载当前平台的配置 (支持 distro 级别匹配)
 pub fn load_platform_def() -> &'static PlatformDef {
     PLATFORM_DEF_CACHE.get_or_init(|| {
-    let candidates = platform_candidates();
+        let candidates = platform_candidates();
 
-    // 用户目录
-    if let Some(home) = dirs::home_dir() {
+        // 用户目录
+        if let Some(home) = dirs::home_dir() {
+            for candidate in &candidates {
+                let path = home.join(format!(".config/nz-switch/platforms/{candidate}.json"));
+                if path.exists() {
+                    if let Ok(content) = std::fs::read_to_string(&path) {
+                        if let Ok(def) = serde_json::from_str::<PlatformDef>(&content) {
+                            return def;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 内嵌配置 — 先解析再匹配 platform 字段，避免字符串误匹配
         for candidate in &candidates {
-            let path = home.join(format!(".config/nz-switch/platforms/{candidate}.json"));
-            if path.exists() {
-                if let Ok(content) = std::fs::read_to_string(&path) {
-                    if let Ok(def) = serde_json::from_str::<PlatformDef>(&content) {
+            for json_str in embedded_platform_jsons() {
+                if let Ok(def) = serde_json::from_str::<PlatformDef>(json_str) {
+                    if def.platform == *candidate {
                         return def;
                     }
                 }
             }
         }
-    }
 
-    // 内嵌配置 — 先解析再匹配 platform 字段，避免字符串误匹配
-    for candidate in &candidates {
-        for json_str in embedded_platform_jsons() {
-            if let Ok(def) = serde_json::from_str::<PlatformDef>(json_str) {
-                if def.platform == *candidate {
-                    return def;
-                }
-            }
-        }
-    }
-
-    // fallback
-    serde_json::from_str::<PlatformDef>(embedded_platform_jsons()[0])
-        .expect("failed to parse fallback platform config")
+        // fallback
+        serde_json::from_str::<PlatformDef>(embedded_platform_jsons()[0])
+            .expect("failed to parse fallback platform config")
     })
 }
 
@@ -297,7 +329,9 @@ pub fn load_platform_mirrors() -> Vec<(String, Vec<(String, String)>)> {
                 continue;
             }
 
-            let mirrors: Vec<(String, String)> = def.mirrors.iter()
+            let mirrors: Vec<(String, String)> = def
+                .mirrors
+                .iter()
                 .filter(|m| m.enabled)
                 .filter(|m| m.os.is_empty() || m.os.iter().any(|o| o == current_os()))
                 .filter(|m| m.arch.is_empty() || m.arch.iter().any(|a| a == current_arch()))
@@ -402,7 +436,11 @@ mod tests {
     #[test]
     fn test_load_mirror_defs_not_empty() {
         let defs = load_mirror_defs();
-        assert!(defs.len() >= 30, "expected at least 30 mirror defs, got {}", defs.len());
+        assert!(
+            defs.len() >= 30,
+            "expected at least 30 mirror defs, got {}",
+            defs.len()
+        );
     }
 
     #[test]
@@ -417,7 +455,11 @@ mod tests {
         assert!(!candidates.is_empty());
         // 每个候选格式: os-arch 或 os-distro-arch
         for c in &candidates {
-            assert!(c.contains('-'), "platform candidate should contain '-': {}", c);
+            assert!(
+                c.contains('-'),
+                "platform candidate should contain '-': {}",
+                c
+            );
         }
     }
 
@@ -460,7 +502,13 @@ mod tests {
         let defs = load_mirror_defs();
         for def in defs.iter() {
             for m in &def.mirrors {
-                assert!(m.url.starts_with("http"), "Mirror '{}.{}' has invalid URL: {}", def.tool, m.name, m.url);
+                assert!(
+                    m.url.starts_with("http"),
+                    "Mirror '{}.{}' has invalid URL: {}",
+                    def.tool,
+                    m.name,
+                    m.url
+                );
             }
         }
     }
