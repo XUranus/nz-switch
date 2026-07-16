@@ -477,20 +477,27 @@ mod tests {
 
     #[test]
     fn test_shell_rc_path_returns_some() {
-        // 在 Linux 上应返回 .bashrc 或 .zshrc
         let path = shell_rc_path();
         // 可能是 None（如果 $SHELL 未设置），但不应 panic
         if let Some(p) = path {
             let s = p.to_string_lossy();
-            assert!(
-                s.contains(".zshrc")
-                    || s.contains(".bashrc")
-                    || s.contains(".bash_profile")
-                    || s.contains("config.fish")
-                    || s.contains(".profile"),
-                "unexpected rc path: {}",
-                s
-            );
+            if cfg!(target_os = "windows") {
+                assert!(
+                    s.contains("PowerShell") || s.contains("WindowsPowerShell"),
+                    "unexpected Windows rc path: {}",
+                    s
+                );
+            } else {
+                assert!(
+                    s.contains(".zshrc")
+                        || s.contains(".bashrc")
+                        || s.contains(".bash_profile")
+                        || s.contains("config.fish")
+                        || s.contains(".profile"),
+                    "unexpected rc path: {}",
+                    s
+                );
+            }
         }
     }
 }
