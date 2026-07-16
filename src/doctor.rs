@@ -153,8 +153,7 @@ fn check_mirror(tool: &str, display_name: &str, domestic: bool) -> DoctorCheck {
                         "使用默认源".to_string()
                     },
                 }
-            } else if url.as_deref().is_some_and(|u| is_cn_mirror_url(u)) || is_cn_mirror_url(&name)
-            {
+            } else if url.as_deref().is_some_and(is_cn_mirror_url) || is_cn_mirror_url(&name) {
                 DoctorCheck {
                     name: display_name.to_string(),
                     status: "ok".to_string(),

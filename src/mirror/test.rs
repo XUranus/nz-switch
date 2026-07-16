@@ -75,7 +75,7 @@ async fn test_mirrors_async(tool_filter: Option<&str>) -> Result<()> {
             let (icon, ms_str) = match latency {
                 Some(d) => {
                     let ms = d.as_millis() as u64;
-                    (format::latency_icon(ms), format!("{}ms", ms))
+                    (format::latency_icon(ms), format!("{ms}ms"))
                 }
                 None => ("⏱️".to_string(), "超时".red().to_string()),
             };
@@ -234,10 +234,9 @@ async fn ping_url_tcp(url: &str) -> Option<Duration> {
 fn parse_host_port(url: &str) -> Option<(&str, u16)> {
     let (scheme_end, default_port) = if let Some(rest) = url.strip_prefix("https://") {
         (rest, 443)
-    } else if let Some(rest) = url.strip_prefix("http://") {
-        (rest, 80)
     } else {
-        return None;
+        let rest = url.strip_prefix("http://")?;
+        (rest, 80)
     };
 
     // host 部分: 到第一个 '/' 或 ':' 或结尾
