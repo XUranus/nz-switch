@@ -97,6 +97,7 @@ fn apply_file_mirror(tool: &str, source: &str) -> Result<ApplyResult> {
         "maven" => apply_maven_mirror(&url),
         "gradle" => apply_gradle_mirror(&url),
         "docker" => apply_docker_mirror(&url),
+        "pacman" => apply_pacman_mirror(source),
         _ => {
             let msg = format!("暂不支持自动配置 {tool} 的镜像源文件，请参考镜像站文档手动配置");
             info!("no file handler for tool: {}, skipping", tool);
@@ -331,6 +332,76 @@ fn apply_conda_mirror(source: &str) -> Result<ApplyResult> {
 
     std::fs::write(&condarc, content)?;
     info!("wrote conda config to {}", condarc.display());
+
+    Ok(ApplyResult::Applied)
+}
+
+/// 应用 pacman 镜像 (主仓库 + archlinuxcn)
+fn apply_pacman_mirror(source: &str) -> Result<ApplyResult> {
+    use std::path::Path;
+
+    let mirrorlist = Path::new("/etc/pacman.d/mirrorlist");
+    let pacman_conf = Path::new("/etc/pacman.conf");
+
+    // 解析主仓库 URL
+    let main_url =
+        config::resolve_mirror_url("pacman", source).unwrap_or_else(|_| source.to_string());
+
+    // 获取 archlinuxcn URL（从 mirror def 的 env_vars 中读取）
+    let cn_url = config::find_mirror_def("pacman")
+        .and_then(|def| {
+            def.mirrors
+                .iter()
+                .find(|m| m.name == source)
+                .and_then(|m| m.env_vars.as_ref())
+                .and_then(|vars| vars.get("archlinuxcn").cloned())
+        })
+        .unwrap_or_else(|| {
+            // 从主 URL 推导: .../archlinux/$repo/os/$arch → .../archlinuxcn/$arch
+            main_url
+                .replace("/archlinux/$repo/os/$arch", "/archlinuxcn/$arch")
+                .replace("/archlinux/$repo/", "/archlinuxcn/")
+        });
+
+    // 写入 /etc/pacman.d/mirrorlist
+    let mirrorlist_content = format!("# nz-switch mirror config\nServer = {main_url}\n");
+    std::fs::write(mirrorlist, &mirrorlist_content)?;
+    info!("wrote pacman mirrorlist to {}", mirrorlist.display());
+
+    // 写入 /etc/pacman.conf 中的 [archlinuxcn] section
+    if pacman_conf.exists() {
+        let existing = std::fs::read_to_string(pacman_conf)?;
+        let new_content = if existing.contains("[archlinuxcn]") {
+            // 替换已有的 Server 行
+            existing
+                .lines()
+                .map(|line| {
+                    if line.trim_start().starts_with("Server")
+                        && existing[..existing.find(line).unwrap_or(0)].contains("[archlinuxcn]")
+                    {
+                        // 检查此 Server 行是否在 [archlinuxcn] section 内
+                        // 简单策略: 如果上一个非空非注释 section header 是 [archlinuxcn]，则替换
+                        format!("Server = {cn_url}")
+                    } else {
+                        line.to_string()
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join("\n")
+        } else {
+            // 追加 [archlinuxcn] section
+            format!("{existing}\n# nz-switch mirror config\n[archlinuxcn]\nServer = {cn_url}\n")
+        };
+        std::fs::write(pacman_conf, &new_content)?;
+        info!("updated archlinuxcn in {}", pacman_conf.display());
+    } else {
+        // 创建 pacman.conf with archlinuxcn
+        let content = format!(
+            "# nz-switch mirror config\n[options]\nHoldPkg = pacman glibc\n\n[core]\nInclude = /etc/pacman.d/mirrorlist\n\n[extra]\nInclude = /etc/pacman.d/mirrorlist\n\n[archlinuxcn]\nServer = {cn_url}\n"
+        );
+        std::fs::write(pacman_conf, content)?;
+        info!("created {} with archlinuxcn", pacman_conf.display());
+    }
 
     Ok(ApplyResult::Applied)
 }

@@ -6,6 +6,10 @@
   "arch": "aarch64",
   "tools": [
     {
+      "tool": "pacman",
+      "priority": 0
+    },
+    {
       "tool": "pip",
       "priority": 1
     },

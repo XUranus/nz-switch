@@ -104,6 +104,52 @@ pub fn reset_mirror(tool: &str) -> Result<()> {
                 }
             }
         }
+        "pacman" => {
+            let mirrorlist = std::path::Path::new("/etc/pacman.d/mirrorlist");
+            let pacman_conf = std::path::Path::new("/etc/pacman.conf");
+
+            // 重置 mirrorlist 为注释状态
+            if mirrorlist.exists() {
+                let content = std::fs::read_to_string(mirrorlist)?;
+                if content.contains("nz-switch") {
+                    // 只清除我们写入的内容，保留其他
+                    let new_content: String = content
+                        .lines()
+                        .filter(|line| !line.contains("nz-switch"))
+                        .collect::<Vec<_>>()
+                        .join("\n");
+                    std::fs::write(mirrorlist, new_content)?;
+                    println!(
+                        "{} 已清理 /etc/pacman.d/mirrorlist 中的 nz-switch 配置",
+                        "✅".green()
+                    );
+                } else {
+                    println!("{} mirrorlist 非 nz-switch 创建，跳过", "ℹ".blue());
+                }
+            }
+
+            // 从 pacman.conf 中移除 [archlinuxcn] section
+            if pacman_conf.exists() {
+                let content = std::fs::read_to_string(pacman_conf)?;
+                if content.contains("[archlinuxcn]") && content.contains("nz-switch") {
+                    let new_content: String = content
+                        .lines()
+                        .collect::<Vec<_>>()
+                        .split(|line| line.trim() == "[archlinuxcn]")
+                        .next()
+                        .unwrap_or(&[])
+                        .iter()
+                        .map(|s| s.to_string())
+                        .collect::<Vec<_>>()
+                        .join("\n");
+                    std::fs::write(pacman_conf, new_content.trim_end().to_string() + "\n")?;
+                    println!(
+                        "{} 已从 pacman.conf 移除 [archlinuxcn] section",
+                        "✅".green()
+                    );
+                }
+            }
+        }
         "gradle" => {
             let init_path = paths::gradle_init_path()?;
             if init_path.exists() {

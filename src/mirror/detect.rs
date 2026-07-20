@@ -175,6 +175,20 @@ fn detect_file_mirror(tool: &str) -> Option<String> {
             let mirrors = config.get("registry-mirrors")?.as_array()?;
             mirrors.first()?.as_str().map(|s| s.to_string())
         }
+        "pacman" => {
+            let path = std::path::Path::new("/etc/pacman.d/mirrorlist");
+            let content = std::fs::read_to_string(path).ok()?;
+            for line in content.lines() {
+                let trimmed = line.trim();
+                if let Some(rest) = trimmed.strip_prefix("Server") {
+                    let url = rest.trim_start_matches(|c: char| c == '=' || c.is_whitespace());
+                    if !url.is_empty() {
+                        return Some(url.to_string());
+                    }
+                }
+            }
+            None
+        }
         _ => None,
     }
 }

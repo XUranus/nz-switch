@@ -96,6 +96,7 @@ const MIRROR_VSCODE: &str = include_mirror!("vscode");
 const MIRROR_ANDROID_MAVEN: &str = include_mirror!("android-maven");
 const MIRROR_ANDROID_GRADLE: &str = include_mirror!("android-gradle");
 const MIRROR_SWIFT: &str = include_mirror!("swift");
+const MIRROR_PACMAN: &str = include_mirror!("pacman");
 
 // 平台配置: os.arch.json, 可选 distro: os.distro.arch.json
 const PLATFORM_LINUX_X86: &str = include_platform!("linux.x86_64.json");
@@ -144,6 +145,7 @@ fn embedded_mirror_jsons() -> Vec<&'static str> {
         MIRROR_ANDROID_MAVEN,
         MIRROR_ANDROID_GRADLE,
         MIRROR_SWIFT,
+        MIRROR_PACMAN,
     ]
 }
 
